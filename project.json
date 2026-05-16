@@ -1,0 +1,32 @@
+{
+  "overview": "OHSE 360 is a full-stack Digital Occupational Health, Safety & Environment management platform for industrial workplaces. Built for the RKTR organization, it covers all critical OHSE workflows including incident reporting, work permit approvals, training compliance, executive dashboards with live KPIs, and a complete immutable audit trail — all enforced with 6-level role-based access control.",
+  "features": [
+    "Employee ID authentication with forced first-login password change",
+    "6 role-based dashboards: System Admin, Employee, Safety Officer, HOD, Area In Charge, Contractor Admin",
+    "User Management with protected System Admin account (ID 230034)",
+    "Employee Master with auto-generated codes, CSV export, and training matrix auto-generation",
+    "Live Executive Dashboard: TRIR, LTIFR, Near Miss, Audit Score, Training Compliance, PTW Compliance KPIs",
+    "Incident Reporting with INC-YYYY-0001 auto-numbering, CAPA auto-creation, and severity notifications",
+    "Training Management with certificate auto-generation (CERT format) and 30/7-day expiry warnings",
+    "Work Permit (PTW) with strict 3-step HOD → Area In Charge → Safety Officer approval chain",
+    "Immutable Audit Trail for every action across all modules with CSV export",
+    "In-app notification bell and email notifications for all key OHSE events",
+    "Dark navy/slate industrial theme with green and amber accents, RKTR wordmark branding",
+    "Realistic demo data seeded across all modules at startup"
+  ],
+  "category": "enterprise-safety-management",
+  "tags": [
+    "ohse",
+    "safety",
+    "occupational-health",
+    "environment",
+    "incident-management",
+    "work-permit",
+    "training",
+    "compliance",
+    "audit-trail",
+    "enterprise",
+    "rktr"
+  ],
+  "last_updated": "2026-05-15T16:18:22.264Z"
+}
