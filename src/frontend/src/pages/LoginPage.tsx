@@ -70,11 +70,7 @@ export default function LoginPage() {
         mustChangePassword,
       });
 
-      if (mustChangePassword && me.role !== "SystemAdmin") {
-        navigate({ to: "/change-password" });
-      } else {
-        navigate({ to: ROLE_LANDING[me.role] });
-      }
+      navigate({ to: ROLE_LANDING[me.role] });
     } catch (err) {
       toast.error("Login failed. Please try again.");
       console.error(err);

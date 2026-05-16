@@ -153,7 +153,7 @@ export default function ChangePasswordPage() {
             Change Your Password
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
-            For your security, please set a new password before continuing.
+            Update your account password below.
           </p>
         </div>
 

@@ -50,6 +50,7 @@ import {
   RiskLevel,
 } from "../backend";
 import type { JSAView } from "../backend";
+import { DEPARTMENTS, LOCATIONS } from "../constants/locations";
 import { useAuth } from "../hooks/useAuth";
 import { useBackend } from "../hooks/useBackend";
 
@@ -70,16 +71,7 @@ const RISK_LABELS: Record<RiskLevel, string> = {
   Critical: "Critical",
 };
 
-const DEPARTMENTS = [
-  "Maintenance",
-  "Production",
-  "Engineering",
-  "Safety & Health",
-  "Logistics",
-  "Quality",
-  "Administration",
-  "Utilities",
-];
+// DEPARTMENTS and LOCATIONS imported from constants/locations
 
 const PPE_ITEMS: Array<{ key: keyof PPEFields; label: string }> = [
   { key: "helmetRequired", label: "Helmet" },
@@ -477,13 +469,21 @@ function CreateJSADialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-foreground">Location *</Label>
-              <Input
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Building 3, Level 2"
-                className="bg-background border-input"
-                data-ocid="jsa.create.location.input"
-              />
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger
+                  className="bg-background border-input"
+                  data-ocid="jsa.create.location.input"
+                >
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  {LOCATIONS.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.location && (
                 <p className="text-xs text-destructive">{errors.location}</p>
               )}

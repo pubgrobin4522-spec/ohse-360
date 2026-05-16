@@ -72,6 +72,7 @@ import {
   WasteType,
   WaterSource,
 } from "../backend";
+import { DEPARTMENTS } from "../constants/locations";
 import { useAuth } from "../hooks/useAuth";
 import { useBackend } from "../hooks/useBackend";
 import { Role } from "../types";
@@ -444,14 +445,21 @@ function WasteTab({
               />
             </FormRow>
             <FormRow label="Department">
-              <Input
+              <Select
                 value={form.department}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, department: e.target.value }))
-                }
-                className={INPUT_CLS}
-                required
-              />
+                onValueChange={(v) => setForm((p) => ({ ...p, department: v }))}
+              >
+                <SelectTrigger className={INPUT_CLS}>
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormRow>
             <div className="col-span-2 flex justify-end gap-2 pt-2">
               <Button
@@ -697,14 +705,21 @@ function AirTab({
               />
             </FormRow>
             <FormRow label="Department">
-              <Input
+              <Select
                 value={form.department}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, department: e.target.value }))
-                }
-                className={INPUT_CLS}
-                required
-              />
+                onValueChange={(v) => setForm((p) => ({ ...p, department: v }))}
+              >
+                <SelectTrigger className={INPUT_CLS}>
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormRow>
             <div className="col-span-2 flex justify-end gap-2 pt-2">
               <Button
@@ -944,14 +959,21 @@ function WaterTab({
               </Select>
             </FormRow>
             <FormRow label="Department">
-              <Input
+              <Select
                 value={form.department}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, department: e.target.value }))
-                }
-                className={INPUT_CLS}
-                required
-              />
+                onValueChange={(v) => setForm((p) => ({ ...p, department: v }))}
+              >
+                <SelectTrigger className={INPUT_CLS}>
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormRow>
             <div className="col-span-2 flex justify-end gap-2 pt-2">
               <Button
@@ -1181,14 +1203,21 @@ function EffluentTab({
               />
             </FormRow>
             <FormRow label="Department">
-              <Input
+              <Select
                 value={form.department}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, department: e.target.value }))
-                }
-                className={INPUT_CLS}
-                required
-              />
+                onValueChange={(v) => setForm((p) => ({ ...p, department: v }))}
+              >
+                <SelectTrigger className={INPUT_CLS}>
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormRow>
             <div className="col-span-2 flex justify-end gap-2 pt-2">
               <Button
@@ -1473,14 +1502,21 @@ function EnergyTab({
               </Select>
             </FormRow>
             <FormRow label="Department">
-              <Input
+              <Select
                 value={form.department}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, department: e.target.value }))
-                }
-                className={INPUT_CLS}
-                required
-              />
+                onValueChange={(v) => setForm((p) => ({ ...p, department: v }))}
+              >
+                <SelectTrigger className={INPUT_CLS}>
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormRow>
             {/* Carbon equivalent preview */}
             <div className="col-span-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 p-3">

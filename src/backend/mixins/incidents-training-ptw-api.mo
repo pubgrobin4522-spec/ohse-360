@@ -31,16 +31,22 @@ mixin (
   incidents  : Map.Map<Text, T.Incident>,
   capas      : List.List<T.CAPA>,
   trainings  : Map.Map<Text, T.Training>,
-  ptws       : Map.Map<Text, T.PTW>,
+  ptws       : Map.Map<Text, T.PermitToWork>,
   itp_state  : {
     var nextIncSeq  : Nat;
     var nextTrnSeq  : Nat;
-    var nextPtwSeq  : Nat;
+    var nextPtwSeq  : Nat;  // kept for backwards compat
     var nextCAPAId  : Nat;
     var nextCertSeq : Nat;
     var manHours    : Nat;
     var auditScore  : Nat;
   },
+  ptw_state : {
+    var ptwMonthlyCounter : Nat;
+    var ptwLastMonth      : Text;
+  },
+  locationList   : [Text],
+  departmentList : [Text],
 ) {
 
   // ─── Auth helpers (duplicated from auth mixin — no shared funcs between mixins) ──
@@ -430,43 +436,118 @@ mixin (
   };
 
   // ─────────────────────────────────────────────────────────
-  // WORK PERMIT (PTW)
+  // WORK PERMIT (PTW) — Full Rebuild
   // ─────────────────────────────────────────────────────────
 
-  /// Create a new PTW (starts as Draft).
-  public func createPTW(token : Text, input : T.CreatePTWInput) : async CT.Result<T.PTWView> {
-    switch (itpRequireAuth(token)) {
-      case (#err(e)) { #err(e) };
-      case (#ok(u)) {
-        let year = Lib.currentYear();
-        let seq  = itp_state.nextPtwSeq;
-        itp_state.nextPtwSeq += 1;
-        let num  = Lib.permitNumber(year, seq);
-        let ptw  = Lib.newPTW(num, input, u.employeeId, u.fullName);
-        ptws.add(num, ptw);
-        itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Created, num, "PTW created: " # num);
-        #ok(Lib.toPTWView(ptw));
+  // Build an ApprovalSignature for the current user
+  func mkSig(u : AT.User, status : Text, remarks : Text) : T.ApprovalSignature {
+    {
+      employeeId     = u.employeeId;
+      name           = u.fullName;
+      designation    = u.designation;
+      approvalStatus = status;
+      signedAt       = ?Time.now();
+      ipAddress      = "";
+      remarks;
+    };
+  };
+
+  // Validate an employee ID has an expected role (returns error text or null)
+  func validateRole(eid : CT.EmployeeId, expected : CT.Role) : ?Text {
+    switch (users.get(eid)) {
+      case (null) { ?("Employee ID " # eid.toText() # " not found") };
+      case (?u) {
+        let hasRole = u.role == expected or
+          (u.roles.find(func(r : CT.Role) : Bool { r == expected }) != null);
+        if (hasRole) null
+        else ?("Employee ID " # eid.toText() # " does not have role " # debug_show(expected));
       };
     };
   };
 
-  /// Submit PTW for approval (Draft → PendingHOD).
-  public func submitPTW(token : Text, permitNum : Text) : async CT.Result<()> {
+  // Get current yearMonth "YYYY/MM" and manage monthly counter reset
+  func nextPtwId() : Text {
+    let ym = Lib.currentYearMonth();
+    if (ym != ptw_state.ptwLastMonth) {
+      ptw_state.ptwMonthlyCounter := 1;
+      ptw_state.ptwLastMonth      := ym;
+    } else {
+      ptw_state.ptwMonthlyCounter += 1;
+    };
+    Lib.generatePTWNumber(ptw_state.ptwMonthlyCounter, ym);
+  };
+
+  /// Create a new PTW.
+  public func createPTW(token : Text, input : T.CreatePermitInput) : async CT.Result<Text> {
     switch (itpRequireAuth(token)) {
       case (#err(e)) { #err(e) };
       case (#ok(u)) {
-        switch (ptws.get(permitNum)) {
-          case (null)  { #err("Permit not found") };
+        // Mandatory header validations
+        if (input.department == "") return #err("Department is required");
+        if (input.jobLocation == "") return #err("Job location is required");
+        // Validate nominated HOD if not System Admin
+        if (u.role != #SystemAdmin) {
+          switch (input.nominatedHodEmployeeId) {
+            case (null) { return #err("Nominated HOD employee ID is required") };
+            case (?hodId) {
+              switch (validateRole(hodId, #HOD)) {
+                case (?err) { return #err(err) };
+                case (null) {};
+              };
+            };
+          };
+        };
+        let permitId = nextPtwId();
+        let ptw = Lib.newPermitToWork(permitId, input, u.employeeId);
+        if (u.role == #SystemAdmin) {
+          ptw.status := #Active;
+        };
+        ptws.add(permitId, ptw);
+        itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Created, permitId, "PTW created: " # permitId);
+        if (u.role != #SystemAdmin) {
+          switch (input.nominatedHodEmployeeId) {
+            case (?hodId) {
+              itpPushNotif(hodId, "New PTW " # permitId # " requires your review", "/ptw/" # permitId);
+            };
+            case (null) {};
+          };
+          ignore itpCcAdminNotify(
+            "",
+            "OHSE 360: New PTW created " # permitId,
+            "<p>PTW <b>" # permitId # "</b> created by " # u.fullName # ".</p>",
+          );
+        };
+        #ok(permitId);
+      };
+    };
+  };
+
+  /// Submit PTW for HOD review (Draft → HODReview).
+  public func submitPTW(token : Text, permitId : Text, nominatedHodId : Nat) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
           case (?ptw) {
-            if (ptw.requestedById != u.employeeId) return #err("Only requester can submit");
+            if (ptw.createdBy != u.employeeId) return #err("Only the permit creator can submit");
             if (ptw.status != #Draft) return #err("Only Draft permits can be submitted");
-            ptw.status := #PendingHOD;
-            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Updated, permitNum, "Submitted for HOD approval");
-            notifyHODs("PTW " # permitNum # " requires your approval", "/ptw/" # permitNum);
+            if (ptw.selectedHazards.size() == 0) return #err("At least one hazard must be selected");
+            if (ptw.selectedPPE.size() == 0) return #err("At least one PPE item must be selected");
+            switch (validateRole(nominatedHodId, #HOD)) {
+              case (?err) { return #err(err) };
+              case (null) {};
+            };
+            ptw.status := #HODReview;
+            ptw.nominatedHodEmployeeId := ?nominatedHodId;
+            ptw.updatedAt := Time.now();
+            ptw.requestorSignature := ?mkSig(u, "Approved", "Submitted for HOD review");
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Updated, permitId, "Submitted for HOD review");
+            itpPushNotif(nominatedHodId, "PTW " # permitId # " requires your HOD review", "/ptw/" # permitId);
             ignore itpCcAdminNotify(
               "",
-              "OHSE 360: PTW submitted " # permitNum,
-              "<p>PTW <b>" # permitNum # "</b> has been submitted and is pending HOD approval.</p>",
+              "OHSE 360: PTW submitted " # permitId,
+              "<p>PTW <b>" # permitId # "</b> submitted by " # u.fullName # " — pending HOD review.</p>",
             );
             #ok(());
           };
@@ -475,74 +556,35 @@ mixin (
     };
   };
 
-  /// Approve or reject PTW at the current step.
-  public func actOnPTW(
-    token     : Text,
-    permitNum : Text,
-    approve   : Bool,
-    remarks   : Text,
+  /// HOD approves PTW (HODReview → AreaReview).
+  public func approvePTWHOD(
+    token                  : Text,
+    permitId               : Text,
+    remarks                : Text,
+    nominatedAreaInChargeId : Nat,
   ) : async CT.Result<()> {
     switch (itpRequireAuth(token)) {
       case (#err(e)) { #err(e) };
       case (#ok(u)) {
-        switch (ptws.get(permitNum)) {
-          case (null)  { #err("Permit not found") };
+        if (u.role != #HOD and u.role != #SystemAdmin) return #err("HOD role required");
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
           case (?ptw) {
-            let now = Time.now();
-            let step : T.ApprovalStep = {
-              approverId   = u.employeeId;
-              approverName = u.fullName;
-              role         = u.role;
-              var approved = ?approve;
-              var remarks  = remarks;
-              var actionAt = ?now;
+            if (ptw.status != #HODReview) return #err("Permit is not in HOD Review status");
+            switch (validateRole(nominatedAreaInChargeId, #AreaInCharge)) {
+              case (?err) { return #err(err) };
+              case (null) {};
             };
-            if (ptw.status == #PendingHOD) {
-              if (u.role != #HOD and u.role != #SystemAdmin) return #err("HOD role required");
-              ptw.hodStep := ?step;
-              if (approve) {
-                ptw.status := #PendingAreaInCharge;
-                notifyAICs("PTW " # permitNum # " requires your validation", "/ptw/" # permitNum);
-              } else {
-                ptw.status := #Rejected;
-                ptw.rejectedAt := ?now;
-                ptw.rejectedRemarks := remarks;
-                itpPushNotif(ptw.requestedById, "PTW " # permitNum # " rejected by HOD: " # remarks, "/ptw/" # permitNum);
-              };
-            } else if (ptw.status == #PendingAreaInCharge) {
-              if (u.role != #AreaInCharge and u.role != #SystemAdmin) return #err("Area In Charge role required");
-              ptw.aicStep := ?step;
-              if (approve) {
-                ptw.status := #PendingSafetyOfficer;
-                notifySafetyOfficers("PTW " # permitNum # " requires Safety Officer approval", "/ptw/" # permitNum);
-              } else {
-                ptw.status := #Rejected;
-                ptw.rejectedAt := ?now;
-                ptw.rejectedRemarks := remarks;
-                itpPushNotif(ptw.requestedById, "PTW " # permitNum # " rejected by AIC: " # remarks, "/ptw/" # permitNum);
-              };
-            } else if (ptw.status == #PendingSafetyOfficer) {
-              if (u.role != #SafetyOfficer and u.role != #SystemAdmin) return #err("Safety Officer role required");
-              ptw.soStep := ?step;
-              if (approve) {
-                ptw.status := #Active;
-                itpPushNotif(ptw.requestedById, "PTW " # permitNum # " is now Active!", "/ptw/" # permitNum);
-              } else {
-                ptw.status := #Rejected;
-                ptw.rejectedAt := ?now;
-                ptw.rejectedRemarks := remarks;
-                itpPushNotif(ptw.requestedById, "PTW " # permitNum # " rejected by Safety Officer: " # remarks, "/ptw/" # permitNum);
-              };
-            } else {
-              return #err("No approval action required at current status");
-            };
-            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW",
-              if (approve) #Approved else #Rejected_,
-              permitNum, "Action: " # (if approve "Approved" else "Rejected") # " - " # remarks);
+            ptw.hodSignature := ?mkSig(u, "Approved", remarks);
+            ptw.status := #AreaReview;
+            ptw.nominatedAreaInChargeEmployeeId := ?nominatedAreaInChargeId;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Approved, permitId, "HOD approved — " # remarks);
+            itpPushNotif(nominatedAreaInChargeId, "PTW " # permitId # " requires your area validation", "/ptw/" # permitId);
             ignore itpCcAdminNotify(
               "",
-              "OHSE 360: PTW " # (if approve "approved" else "rejected") # " at " # debug_show(u.role) # " stage - " # permitNum,
-              "<p>PTW <b>" # permitNum # "</b> was " # (if approve "approved" else "rejected") # " by " # u.fullName # ".</p>",
+              "OHSE 360: PTW HOD approved " # permitId,
+              "<p>PTW <b>" # permitId # "</b> approved by HOD " # u.fullName # ".</p>",
             );
             #ok(());
           };
@@ -551,24 +593,53 @@ mixin (
     };
   };
 
-  /// Close a permit (mark as Closed).
-  public func closePTW(token : Text, permitNum : Text) : async CT.Result<()> {
+  /// Area In-Charge approves PTW (AreaReview → IsolationReview or SafetyReview).
+  public func approvePTWAreaInCharge(
+    token           : Text,
+    permitId        : Text,
+    remarks         : Text,
+    nominatedNextId : Nat,
+  ) : async CT.Result<()> {
     switch (itpRequireAuth(token)) {
       case (#err(e)) { #err(e) };
       case (#ok(u)) {
-        if (u.role != #SafetyOfficer and u.role != #SystemAdmin) {
-          return #err("Safety Officer required");
-        };
-        switch (ptws.get(permitNum)) {
-          case (null)  { #err("Permit not found") };
+        if (u.role != #AreaInCharge and u.role != #SystemAdmin) return #err("Area In-Charge role required");
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
           case (?ptw) {
-            ptw.status  := #Closed;
-            ptw.closedAt := ?Time.now();
-            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Closed_, permitNum, "Permit closed");
+            if (ptw.status != #AreaReview) return #err("Permit is not in Area Review status");
+            ptw.areaInChargeSignature := ?mkSig(u, "Approved", remarks);
+            ptw.updatedAt := Time.now();
+            let isolationRequired = switch (ptw.isolation) {
+              case (null) { false };
+              case (?iso) { iso.isolationRequired };
+            };
+            if (isolationRequired) {
+              // validate nominatedNextId exists (any role for isolation authority)
+              switch (users.get(nominatedNextId)) {
+                case (null) { return #err("Employee ID " # nominatedNextId.toText() # " not found") };
+                case (_) {};
+              };
+              ptw.status := #IsolationReview;
+              ptw.nominatedIsolationAuthorityEmployeeId := ?nominatedNextId;
+              itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Approved, permitId,
+                "Area In-Charge approved — routed to Isolation — " # remarks);
+              itpPushNotif(nominatedNextId, "PTW " # permitId # " requires isolation authority review", "/ptw/" # permitId);
+            } else {
+              switch (validateRole(nominatedNextId, #SafetyOfficer)) {
+                case (?err) { return #err(err) };
+                case (null) {};
+              };
+              ptw.status := #SafetyReview;
+              ptw.nominatedSafetyOfficerEmployeeId := ?nominatedNextId;
+              itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Approved, permitId,
+                "Area In-Charge approved — routed to Safety Review — " # remarks);
+              itpPushNotif(nominatedNextId, "PTW " # permitId # " requires Safety Officer review", "/ptw/" # permitId);
+            };
             ignore itpCcAdminNotify(
               "",
-              "OHSE 360: PTW closed " # permitNum,
-              "<p>PTW <b>" # permitNum # "</b> has been closed.</p>",
+              "OHSE 360: PTW Area In-Charge approved " # permitId,
+              "<p>PTW <b>" # permitId # "</b> approved by Area In-Charge " # u.fullName # ".</p>",
             );
             #ok(());
           };
@@ -577,12 +648,259 @@ mixin (
     };
   };
 
-  /// List PTWs.
+  /// Isolation Authority approves (IsolationReview → SafetyReview).
+  public func approvePTWIsolationAuthority(
+    token                    : Text,
+    permitId                 : Text,
+    remarks                  : Text,
+    nominatedSafetyOfficerId : Nat,
+  ) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            if (ptw.status != #IsolationReview) return #err("Permit is not in Isolation Review status");
+            switch (validateRole(nominatedSafetyOfficerId, #SafetyOfficer)) {
+              case (?err) { return #err(err) };
+              case (null) {};
+            };
+            ptw.isolationAuthoritySignature := ?mkSig(u, "Approved", remarks);
+            ptw.status := #SafetyReview;
+            ptw.nominatedSafetyOfficerEmployeeId := ?nominatedSafetyOfficerId;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Approved, permitId,
+              "Isolation Authority approved — " # remarks);
+            itpPushNotif(nominatedSafetyOfficerId,
+              "PTW " # permitId # " requires Safety Officer review",
+              "/ptw/" # permitId);
+            ignore itpCcAdminNotify(
+              "",
+              "OHSE 360: PTW Isolation Authority approved " # permitId,
+              "<p>PTW <b>" # permitId # "</b> isolation approved by " # u.fullName # ".</p>",
+            );
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Safety Officer approves (SafetyReview → FinalApproval).
+  public func approvePTWSafetyOfficer(
+    token                 : Text,
+    permitId              : Text,
+    remarks               : Text,
+    nominatedFinalIssuerId : Nat,
+  ) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        let isSO = u.role == #SafetyOfficer or u.role == #SystemAdmin or
+          (u.roles.find(func(r : CT.Role) : Bool { r == #SafetyOfficer }) != null);
+        if (not isSO) return #err("Safety Officer role required");
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            if (ptw.status != #SafetyReview) return #err("Permit is not in Safety Review status");
+            // Validate insurance not expired
+            switch (ptw.insurance) {
+              case (?ins) {
+                if (ins.verificationStatus == "Expired") {
+                  return #err("Insurance has expired — permit cannot be approved");
+                };
+              };
+              case (null) {};
+            };
+            // Validate final issuer exists
+            switch (users.get(nominatedFinalIssuerId)) {
+              case (null) { return #err("Final Issuer Employee ID " # nominatedFinalIssuerId.toText() # " not found") };
+              case (_) {};
+            };
+            ptw.safetyOfficerSignature := ?mkSig(u, "Approved", remarks);
+            ptw.status := #FinalApproval;
+            ptw.nominatedFinalIssuerEmployeeId := ?nominatedFinalIssuerId;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Approved, permitId,
+              "Safety Officer approved — " # remarks);
+            itpPushNotif(nominatedFinalIssuerId,
+              "PTW " # permitId # " requires your final issuance approval",
+              "/ptw/" # permitId);
+            ignore itpCcAdminNotify(
+              "",
+              "OHSE 360: PTW Safety Officer approved " # permitId,
+              "<p>PTW <b>" # permitId # "</b> safety-approved by " # u.fullName # ".</p>",
+            );
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Final Issuer approves (FinalApproval → Active).
+  public func approvePTWFinalIssuer(
+    token    : Text,
+    permitId : Text,
+    remarks  : Text,
+  ) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            if (ptw.status != #FinalApproval) return #err("Permit is not in Final Approval status");
+            ptw.finalIssuerSignature := ?mkSig(u, "Approved", remarks);
+            ptw.status := #Active;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Approved, permitId,
+              "Final Issuer approved — permit now Active — " # remarks);
+            itpPushNotif(ptw.createdBy,
+              "PTW " # permitId # " is now ACTIVE — work may commence",
+              "/ptw/" # permitId);
+            ignore itpCcAdminNotify(
+              "",
+              "OHSE 360: PTW ACTIVE " # permitId,
+              "<p>PTW <b>" # permitId # "</b> is now Active. Final Issuer: " # u.fullName # ".</p>",
+            );
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Reject PTW at any active approval stage.
+  public func rejectPTW(token : Text, permitId : Text, remarks : Text) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            let canReject = switch (ptw.status) {
+              case (#HODReview) { u.role == #HOD or u.role == #SystemAdmin };
+              case (#AreaReview) { u.role == #AreaInCharge or u.role == #SystemAdmin };
+              case (#IsolationReview) { u.role == #SystemAdmin or true }; // isolation authority
+              case (#SafetyReview) {
+                u.role == #SafetyOfficer or u.role == #SystemAdmin or
+                (u.roles.find(func(r : CT.Role) : Bool { r == #SafetyOfficer }) != null)
+              };
+              case (#FinalApproval) { u.role == #SystemAdmin or true }; // final issuer
+              case (_) { false };
+            };
+            if (not canReject) return #err("You are not authorised to reject at this stage");
+            // Set the stage signature as Rejected
+            let sig = mkSig(u, "Rejected", remarks);
+            switch (ptw.status) {
+              case (#HODReview)       { ptw.hodSignature := ?sig };
+              case (#AreaReview)      { ptw.areaInChargeSignature := ?sig };
+              case (#IsolationReview) { ptw.isolationAuthoritySignature := ?sig };
+              case (#SafetyReview)    { ptw.safetyOfficerSignature := ?sig };
+              case (#FinalApproval)   { ptw.finalIssuerSignature := ?sig };
+              case (_) {};
+            };
+            ptw.status := #Rejected;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Rejected_, permitId,
+              "Rejected at " # debug_show(ptw.status) # " — " # remarks);
+            itpPushNotif(ptw.createdBy,
+              "PTW " # permitId # " has been REJECTED by " # u.fullName # ": " # remarks,
+              "/ptw/" # permitId);
+            ignore itpCcAdminNotify(
+              "",
+              "OHSE 360: PTW rejected " # permitId,
+              "<p>PTW <b>" # permitId # "</b> rejected by " # u.fullName # ". Reason: " # remarks # "</p>",
+            );
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Suspend an active permit (Safety Officer or System Admin).
+  public func suspendPTW(token : Text, permitId : Text, reason : Text) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        let isSO = u.role == #SafetyOfficer or u.role == #SystemAdmin or
+          (u.roles.find(func(r : CT.Role) : Bool { r == #SafetyOfficer }) != null);
+        if (not isSO) return #err("Safety Officer or System Admin required");
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            if (ptw.status != #Active) return #err("Only Active permits can be suspended");
+            ptw.status := #Suspended;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Updated, permitId,
+              "Permit SUSPENDED — " # reason);
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Close a permit (original requestor only).
+  public func closePTW(token : Text, permitId : Text) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            if (ptw.createdBy != u.employeeId and u.role != #SystemAdmin)
+              return #err("Only the original requestor can close the permit");
+            if (ptw.status != #Active and ptw.status != #Approved)
+              return #err("Only Active or Approved permits can be closed");
+            ptw.status := #Closed;
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Closed_, permitId, "Permit closed");
+            itpPushNotif(ptw.createdBy,
+              "PTW " # permitId # " has been CLOSED",
+              "/ptw/" # permitId);
+            ignore itpCcAdminNotify(
+              "",
+              "OHSE 360: PTW closed " # permitId,
+              "<p>PTW <b>" # permitId # "</b> has been closed by " # u.fullName # ".</p>",
+            );
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Get a single PTW (role-scoped).
+  public query func getPTW(token : Text, permitId : Text) : async CT.Result<T.PermitToWorkView> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            let allowed = switch (u.role) {
+              case (#Employee or #ContractorAdmin) { ptw.createdBy == u.employeeId };
+              case (#HOD) { ptw.department == u.department or ptw.createdBy == u.employeeId };
+              case (_) { true };
+            };
+            if (not allowed) return #err("Access denied");
+            #ok(Lib.toPermitView(ptw));
+          };
+        };
+      };
+    };
+  };
+
+  /// List PTWs (role-scoped).
   public query func listPTWs(
-    token         : Text,
-    filterStatus  : ?T.PTWStatus,
-    filterType    : ?T.PermitType,
-  ) : async CT.Result<[T.PTWView]> {
+    token        : Text,
+    filterStatus : ?T.PTWStatus,
+    filterType   : ?T.PermitType,
+  ) : async CT.Result<[T.PermitToWorkView]> {
     switch (itpRequireAuth(token)) {
       case (#err(e)) { #err(e) };
       case (#ok(u)) {
@@ -590,28 +908,77 @@ mixin (
           let statOk = switch (filterStatus) { case (null) true; case (?s) p.status == s };
           let typeOk = switch (filterType)   { case (null) true; case (?t) p.permitType == t };
           let scopeOk = switch (u.role) {
-            case (#Employee or #ContractorAdmin) { p.requestedById == u.employeeId };
-            case (#HOD) { p.status == #PendingHOD or p.requestedById == u.employeeId };
-            case (#AreaInCharge) { p.status == #PendingAreaInCharge or p.requestedById == u.employeeId };
+            case (#Employee or #ContractorAdmin) { p.createdBy == u.employeeId };
+            case (#HOD) { p.department == u.department or p.createdBy == u.employeeId };
+            case (#AreaInCharge) { p.status == #AreaReview or p.createdBy == u.employeeId };
             case (_) { true };
           };
           statOk and typeOk and scopeOk;
         });
-        #ok(all.map<T.PTW, T.PTWView>(func(p) { Lib.toPTWView(p) }).toArray());
+        #ok(all.map<T.PermitToWork, T.PermitToWorkView>(func(p) { Lib.toPermitView(p) }).toArray());
       };
     };
   };
 
-  /// Get a single PTW.
-  public query func getPTW(token : Text, permitNum : Text) : async CT.Result<T.PTWView> {
+  /// Record energisation (electrical or service/process).
+  public func recordEnergisation(
+    token    : Text,
+    permitId : Text,
+    record   : T.EnergisationRecord,
+  ) : async CT.Result<()> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(u)) {
+        let allowed = u.role == #SafetyOfficer or u.role == #SystemAdmin or
+          (u.roles.find(func(r : CT.Role) : Bool { r == #SafetyOfficer }) != null);
+        if (not allowed) return #err("Safety Officer required");
+        switch (ptws.get(permitId)) {
+          case (null) { #err("Permit not found") };
+          case (?ptw) {
+            if (record.energisationType == "Electrical") {
+              ptw.electricalEnergisation := ?record;
+            } else {
+              ptw.serviceProcessEnergisation := ?record;
+            };
+            ptw.updatedAt := Time.now();
+            itpAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Updated, permitId,
+              record.energisationType # " energisation recorded");
+            #ok(());
+          };
+        };
+      };
+    };
+  };
+
+  /// Get PTW master data (permit types, hazards, PPE, locations, departments).
+  public query func getPTWMasterData(token : Text) : async CT.Result<T.PTWMasterData> {
     switch (itpRequireAuth(token)) {
       case (#err(e)) { #err(e) };
       case (#ok(_)) {
-        switch (ptws.get(permitNum)) {
-          case (null)  { #err("Permit not found") };
-          case (?ptw)  { #ok(Lib.toPTWView(ptw)) };
-        };
+        #ok({
+          permitTypes = ["General Work Permit","Hot Work Permit","Height Work Permit","Confined Space Permit","Electrical Work Permit","Excavation Permit","Lifting Permit","Shutdown Permit","Chemical Handling Permit","Cold Work Permit"];
+          hazards     = ["Corrosive Chemicals","Flammables","Explosives","Hot Materials","Steam","Compressed Gas","Fumes Dust","High/Low Pressure","High/Low Temperature","Live/Dead Electrical","Overhead Danger","Radiation Source","Moving Machine","Open Rotating Parts","Traffic","Confined Space","Use of Ladder","Use of Scaffold","Roof Condition Slippery","Floor Condition Slip Trip","Hidden Cables","Leaky Pipelines","Buried Pipelines","Suspended Load","Biological Hazards","Fall from Height","Others"];
+          ppeList     = ["Helmet","Safety Shoes","Gum Boots","Hand Gloves Cotton","Hand Gloves Cut Resistant","Hand Gloves PU","Hand Gloves Electrical","Hand Gloves Nitrile","Hand Gloves Leather","Apron","PVC Overall","Ear Plug/Ear Muff","Dust/Gas Mask","Breathing Apparatus","Full Body Safety Harness","Safety Net","Crawling Boards","Others"];
+          locations   = locationList;
+          departments = departmentList;
+        });
       };
+    };
+  };
+
+  /// Get location list.
+  public query func getLocations(token : Text) : async CT.Result<[Text]> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(_)) { #ok(locationList) };
+    };
+  };
+
+  /// Get department list.
+  public query func getDepartments(token : Text) : async CT.Result<[Text]> {
+    switch (itpRequireAuth(token)) {
+      case (#err(e)) { #err(e) };
+      case (#ok(_)) { #ok(departmentList) };
     };
   };
 
@@ -669,8 +1036,8 @@ mixin (
         };
 
         // PTW compliance (closed on time = closed)
-        var ptwTotal  = ptws.size();
-        var ptwClosed = ptws.values().filter(func(p) { p.status == #Closed }).size();
+        let ptwTotal  = ptws.size();
+        let ptwClosed = ptws.values().filter(func(p) { p.status == #Closed }).size();
         let ptwPct : Float = if (ptwTotal == 0) { 0.0 } else {
           ptwClosed.toFloat() / ptwTotal.toFloat() * 100.0;
         };

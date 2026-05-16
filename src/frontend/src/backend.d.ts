@@ -9,7 +9,7 @@ export interface None {
 export type Option<T> = Some<T> | None;
 export type Result_32 = {
     __kind__: "ok";
-    ok: Array<NotificationView>;
+    ok: ObservationView;
 } | {
     __kind__: "err";
     err: string;
@@ -63,27 +63,6 @@ export interface TrainingView {
     frequency: TrainingFrequency;
     department: string;
 }
-export interface PTWView {
-    status: PTWStatus;
-    hodStep?: ApprovalStepView;
-    soStep?: ApprovalStepView;
-    permitNumber: string;
-    rejectedRemarks: string;
-    ppeRequired: Array<string>;
-    createdAt: Timestamp;
-    riskAssessed: boolean;
-    workDescription: string;
-    permitType: PermitType;
-    closedAt?: Timestamp;
-    endDateTime: string;
-    rejectedAt?: Timestamp;
-    requestedById: EmployeeId;
-    requestedByName: string;
-    startDateTime: string;
-    location: string;
-    contractorTeam: string;
-    aicStep?: ApprovalStepView;
-}
 export interface NotificationView {
     id: bigint;
     link: string;
@@ -106,15 +85,7 @@ export interface RiskScoreView {
 }
 export type Result_40 = {
     __kind__: "ok";
-    ok: {
-        air: Array<AirEmissionEntry>;
-        effluent: Array<EffluentEntry>;
-        esgScore: bigint;
-        carbon: Array<CarbonEntry>;
-        waste: Array<WasteEntry>;
-        water: Array<WaterEntry>;
-        energy: Array<EnergyEntry>;
-    };
+    ok: HIRAView;
 } | {
     __kind__: "err";
     err: string;
@@ -147,9 +118,22 @@ export interface ObservationView {
     location: string;
 }
 export type EmployeeId = bigint;
+export interface ApprovalSignature {
+    name: string;
+    designation: string;
+    approvalStatus: string;
+    signedAt?: Timestamp;
+    employeeId: EmployeeId;
+    remarks: string;
+    ipAddress: string;
+}
 export type Result_34 = {
     __kind__: "ok";
-    ok: LOTOView;
+    ok: {
+        active: bigint;
+        completedThisMonth: bigint;
+        overdue: bigint;
+    };
 } | {
     __kind__: "err";
     err: string;
@@ -183,6 +167,29 @@ export interface JSAView {
     department: string;
     location: string;
 }
+export interface CreatePermitInput {
+    crossReference: string;
+    nominatedHodEmployeeId?: EmployeeId;
+    supervisorName: string;
+    selectedPPE: Array<string>;
+    timeStart: string;
+    jobLocation: string;
+    area: string;
+    jobDescription: string;
+    validityDate: string;
+    insurance?: InsuranceInfo;
+    permitType: PermitType;
+    issuingDepartment: string;
+    isolation?: IsolationDetail;
+    selectedHazards: Array<string>;
+    checklist: Array<[string, boolean]>;
+    customHazard: string;
+    issuedTo: string;
+    department: string;
+    timeEnd: string;
+    riskLevel: RiskLevel;
+    contractorName: string;
+}
 export type Result_6 = {
     __kind__: "ok";
     ok: {
@@ -197,10 +204,14 @@ export type Result_48 = {
     __kind__: "ok";
     ok: {
         byDept: Array<[string, bigint]>;
+        closed: bigint;
+        closureRate: bigint;
         total: bigint;
-        safe: bigint;
-        unsafe: bigint;
-        score: bigint;
+        open: bigint;
+        overdue: bigint;
+        avgDaysToClose: number;
+        inProgress: bigint;
+        bySource: Array<[string, bigint]>;
     };
 } | {
     __kind__: "err";
@@ -230,7 +241,7 @@ export type Result_26 = {
 };
 export type Result_12 = {
     __kind__: "ok";
-    ok: Array<PTWView>;
+    ok: Array<PermitToWorkView>;
 } | {
     __kind__: "err";
     err: string;
@@ -265,6 +276,13 @@ export type Result_10 = {
     __kind__: "err";
     err: string;
 };
+export interface PTWMasterData {
+    departments: Array<string>;
+    hazards: Array<string>;
+    ppeList: Array<string>;
+    permitTypes: Array<string>;
+    locations: Array<string>;
+}
 export type Result_8 = {
     __kind__: "ok";
     ok: Array<TrainingView>;
@@ -297,6 +315,14 @@ export interface MonthlyTrend {
     year: bigint;
     incidentCount: bigint;
 }
+export interface InsuranceInfo {
+    insuranceType: InsuranceType;
+    documentUrls: Array<string>;
+    validFrom: string;
+    validTill: string;
+    policyNumber: string;
+    verificationStatus: string;
+}
 export interface LockEntryView {
     status: LockEntryStatus;
     assignedEmpId: EmployeeId;
@@ -316,13 +342,7 @@ export interface AirEmissionEntry {
 }
 export type Result_44 = {
     __kind__: "ok";
-    ok: {
-        performanceSummary: Array<[string, string]>;
-        incidentCount: bigint;
-        activeCount: bigint;
-        inductionCompliance: bigint;
-        expiringDocs: bigint;
-    };
+    ok: Array<[string, bigint, string]>;
 } | {
     __kind__: "err";
     err: string;
@@ -354,19 +374,63 @@ export type Result_25 = {
 };
 export type Result_39 = {
     __kind__: "ok";
-    ok: {
-        complianceRate: bigint;
-        carbonTotal: number;
-        trendData: Array<[string, number]>;
-        esgScore: bigint;
-        waterTotal: number;
-        wasteTotal: number;
-        energyTotal: number;
-    };
+    ok: Array<MonthlyTrend>;
 } | {
     __kind__: "err";
     err: string;
 };
+export interface PermitToWorkView {
+    id: string;
+    requestorSignature?: ApprovalSignature;
+    status: PTWStatus;
+    crossReference: string;
+    safetyOfficerSignature?: ApprovalSignature;
+    nominatedHodEmployeeId?: EmployeeId;
+    nominatedAreaInChargeEmployeeId?: EmployeeId;
+    supervisorName: string;
+    selectedPPE: Array<string>;
+    isolationAuthoritySignature?: ApprovalSignature;
+    timeStart: string;
+    jobLocation: string;
+    area: string;
+    jobDescription: string;
+    createdAt: Timestamp;
+    createdBy: EmployeeId;
+    coPpm?: number;
+    linkedJsaNumber?: string;
+    validityDate: string;
+    hodSignature?: ApprovalSignature;
+    insurance?: InsuranceInfo;
+    nominatedIsolationAuthorityEmployeeId?: EmployeeId;
+    nominatedFinalIssuerEmployeeId?: EmployeeId;
+    electricalEnergisation?: EnergisationRecord;
+    updatedAt: Timestamp;
+    permitType: PermitType;
+    areaInChargeSignature?: ApprovalSignature;
+    issuingDepartment: string;
+    isolation?: IsolationDetail;
+    selectedHazards: Array<string>;
+    electricalApproverSignature?: ApprovalSignature;
+    serviceProcessEnergisation?: EnergisationRecord;
+    h2sPpm?: number;
+    checklist: Array<[string, boolean]>;
+    serviceProcessApproverSignature?: ApprovalSignature;
+    emergencyRescueDescription: string;
+    toolboxTalkAttendees: Array<string>;
+    customHazard: string;
+    issuedTo: string;
+    lelPercent?: number;
+    department: string;
+    timeEnd: string;
+    nominatedSafetyOfficerEmployeeId?: EmployeeId;
+    riskLevel: RiskLevel;
+    linkedHiraNumber?: string;
+    o2Percent?: number;
+    contractorName: string;
+    finalIssuerSignature?: ApprovalSignature;
+    emergencyRescuePlan: boolean;
+    toolboxTalkDone: boolean;
+}
 export type Result_27 = {
     __kind__: "ok";
     ok: PTWExtensionView | null;
@@ -388,15 +452,11 @@ export interface DeptOHSEScore {
 export type Result_46 = {
     __kind__: "ok";
     ok: {
-        byDept: Array<[string, bigint]>;
-        closed: bigint;
-        closureRate: bigint;
-        total: bigint;
-        open: bigint;
-        overdue: bigint;
-        avgDaysToClose: number;
-        inProgress: bigint;
-        bySource: Array<[string, bigint]>;
+        performanceSummary: Array<[string, string]>;
+        incidentCount: bigint;
+        activeCount: bigint;
+        inductionCompliance: bigint;
+        expiringDocs: bigint;
     };
 } | {
     __kind__: "err";
@@ -479,7 +539,7 @@ export interface ContractorView {
 }
 export type Result_36 = {
     __kind__: "ok";
-    ok: JSAView;
+    ok: Array<string>;
 } | {
     __kind__: "err";
     err: string;
@@ -539,7 +599,15 @@ export interface AddEnergyInput {
 }
 export type Result_42 = {
     __kind__: "ok";
-    ok: Array<[string, bigint, string]>;
+    ok: {
+        air: Array<AirEmissionEntry>;
+        effluent: Array<EffluentEntry>;
+        esgScore: bigint;
+        carbon: Array<CarbonEntry>;
+        waste: Array<WasteEntry>;
+        water: Array<WaterEntry>;
+        energy: Array<EnergyEntry>;
+    };
 } | {
     __kind__: "err";
     err: string;
@@ -554,6 +622,13 @@ export interface WaterEntry {
     loggedBy: EmployeeId;
     consumption: number;
 }
+export type Result_51 = {
+    __kind__: "ok";
+    ok: RiskScoreView;
+} | {
+    __kind__: "err";
+    err: string;
+};
 export type Result_3 = {
     __kind__: "ok";
     ok: boolean;
@@ -568,16 +643,6 @@ export type Result_18 = {
     __kind__: "err";
     err: string;
 };
-export interface PPEIssuance {
-    issueDate: string;
-    itemId: string;
-    createdAt: Timestamp;
-    size: string;
-    employeeId: EmployeeId;
-    quantity: bigint;
-    issuanceId: string;
-    condition: PPEConditionIssue;
-}
 export type Result_23 = {
     __kind__: "ok";
     ok: TrainingView;
@@ -587,7 +652,7 @@ export type Result_23 = {
 };
 export type Result_38 = {
     __kind__: "ok";
-    ok: HIRAView;
+    ok: JSAView;
 } | {
     __kind__: "err";
     err: string;
@@ -599,6 +664,16 @@ export type Result_15 = {
     __kind__: "err";
     err: string;
 };
+export interface PPEIssuance {
+    issueDate: string;
+    itemId: string;
+    createdAt: Timestamp;
+    size: string;
+    employeeId: EmployeeId;
+    quantity: bigint;
+    issuanceId: string;
+    condition: PPEConditionIssue;
+}
 export interface ContractorDocView {
     status: ContractorDocStatus;
     expiryDate: string;
@@ -648,6 +723,26 @@ export interface UserView {
     roles: Array<Role>;
     mustChangePassword: boolean;
 }
+export type Result_50 = {
+    __kind__: "ok";
+    ok: {
+        byDept: Array<[string, bigint]>;
+        total: bigint;
+        safe: bigint;
+        unsafe: bigint;
+        score: bigint;
+    };
+} | {
+    __kind__: "err";
+    err: string;
+};
+export type Result_5 = {
+    __kind__: "ok";
+    ok: string;
+} | {
+    __kind__: "err";
+    err: string;
+};
 export interface AuditEntry {
     id: bigint;
     action: AuditAction;
@@ -659,13 +754,6 @@ export interface AuditEntry {
     module: string;
     recordRef: string;
 }
-export type Result_5 = {
-    __kind__: "ok";
-    ok: string;
-} | {
-    __kind__: "err";
-    err: string;
-};
 export interface EnergyEntry {
     month: bigint;
     carbonEquivalent: number;
@@ -696,7 +784,7 @@ export interface CreateContractorInput {
 }
 export type Result_31 = {
     __kind__: "ok";
-    ok: ObservationView;
+    ok: PermitToWorkView;
 } | {
     __kind__: "err";
     err: string;
@@ -710,19 +798,19 @@ export type Result_7 = {
 };
 export type Result_41 = {
     __kind__: "ok";
-    ok: EmployeeView;
+    ok: {
+        complianceRate: bigint;
+        carbonTotal: number;
+        trendData: Array<[string, number]>;
+        esgScore: bigint;
+        waterTotal: number;
+        wasteTotal: number;
+        energyTotal: number;
+    };
 } | {
     __kind__: "err";
     err: string;
 };
-export interface ApprovalStepView {
-    approverId: EmployeeId;
-    role: Role;
-    approverName: string;
-    approved?: boolean;
-    actionAt?: Timestamp;
-    remarks: string;
-}
 export type Result_28 = {
     __kind__: "ok";
     ok: {
@@ -734,15 +822,15 @@ export type Result_28 = {
     __kind__: "err";
     err: string;
 };
-export interface CreatePTWInput {
-    ppeRequired: Array<string>;
-    riskAssessed: boolean;
-    workDescription: string;
-    permitType: PermitType;
-    endDateTime: string;
-    startDateTime: string;
-    location: string;
-    contractorTeam: string;
+export interface IsolationDetail {
+    serviceOptions: Array<string>;
+    description: string;
+    isolationRequired: boolean;
+    electricalOptions: Array<string>;
+    isolationBy: EmployeeId;
+    isolationDateTime?: Timestamp;
+    lotoLockNumber: string;
+    verificationStatus: string;
 }
 export type Result_9 = {
     __kind__: "ok";
@@ -780,7 +868,7 @@ export interface CreatePPEItemInput {
 }
 export type Result_30 = {
     __kind__: "ok";
-    ok: PTWView;
+    ok: PTWMasterData;
 } | {
     __kind__: "err";
     err: string;
@@ -817,7 +905,7 @@ export interface PTWExtension {
 export type Timestamp = bigint;
 export type Result_37 = {
     __kind__: "ok";
-    ok: Array<MonthlyTrend>;
+    ok: KPISummary;
 } | {
     __kind__: "err";
     err: string;
@@ -837,12 +925,6 @@ export interface TrainingAttendeeView {
     empCode: string;
     empName: string;
 }
-export interface IsolationPoint {
-    status: IsolationPointStatus;
-    pointId: string;
-    location: string;
-    lockNumber: string;
-}
 export interface IncidentView {
     status: IncidentStatus;
     reportedByName: string;
@@ -859,6 +941,12 @@ export interface IncidentView {
     incidentDate: string;
     incidentType: IncidentType;
     rootCause: string;
+}
+export interface IsolationPoint {
+    status: IsolationPointStatus;
+    pointId: string;
+    location: string;
+    lockNumber: string;
 }
 export interface EmployeeView {
     contact: string;
@@ -892,7 +980,7 @@ export interface CreateJSAInput {
 }
 export type Result_47 = {
     __kind__: "ok";
-    ok: CAPA2View;
+    ok: ContractorView;
 } | {
     __kind__: "err";
     err: string;
@@ -983,7 +1071,7 @@ export type Result_14 = {
 };
 export type Result_49 = {
     __kind__: "ok";
-    ok: RiskScoreView;
+    ok: CAPA2View;
 } | {
     __kind__: "err";
     err: string;
@@ -999,27 +1087,32 @@ export interface AddEmployeeInput {
     employmentType: EmploymentType;
     department: string;
 }
+export interface EnergisationRecord {
+    signature: string;
+    approverEmployeeId: EmployeeId;
+    approvedAt?: Timestamp;
+    approverName: string;
+    checklistItems: Array<[string, boolean]>;
+    lotoLockNumber: string;
+    energisationType: string;
+}
 export type Result_33 = {
     __kind__: "ok";
-    ok: {
-        active: bigint;
-        completedThisMonth: bigint;
-        overdue: bigint;
-    };
+    ok: Array<NotificationView>;
 } | {
     __kind__: "err";
     err: string;
 };
 export type Result_43 = {
     __kind__: "ok";
-    ok: Array<DeptOHSEScore>;
+    ok: EmployeeView;
 } | {
     __kind__: "err";
     err: string;
 };
 export type Result_35 = {
     __kind__: "ok";
-    ok: KPISummary;
+    ok: LOTOView;
 } | {
     __kind__: "err";
     err: string;
@@ -1036,7 +1129,7 @@ export interface ContractorPerformance {
 }
 export type Result_45 = {
     __kind__: "ok";
-    ok: ContractorView;
+    ok: Array<DeptOHSEScore>;
 } | {
     __kind__: "err";
     err: string;
@@ -1227,6 +1320,12 @@ export enum InductionStatus {
     Pass = "Pass",
     Pending = "Pending"
 }
+export enum InsuranceType {
+    ESI = "ESI",
+    GroupAccident = "GroupAccident",
+    WorkerCompensation = "WorkerCompensation",
+    EmployeeCompensation = "EmployeeCompensation"
+}
 export enum JSAStatus {
     UnderReview = "UnderReview",
     Closed = "Closed",
@@ -1272,14 +1371,19 @@ export enum PPEInspectionCondition {
     Damaged = "Damaged"
 }
 export enum PTWStatus {
-    PendingSafetyOfficer = "PendingSafetyOfficer",
     Closed = "Closed",
+    HODReview = "HODReview",
     Active = "Active",
+    IsolationReview = "IsolationReview",
+    AreaReview = "AreaReview",
+    Approved = "Approved",
+    Suspended = "Suspended",
     Draft = "Draft",
     Rejected = "Rejected",
-    PendingAreaInCharge = "PendingAreaInCharge",
-    PendingHOD = "PendingHOD",
-    Completed = "Completed"
+    FinalApproval = "FinalApproval",
+    Submitted = "Submitted",
+    SafetyReview = "SafetyReview",
+    Expired = "Expired"
 }
 export enum PerformanceRating {
     Fair = "Fair",
@@ -1289,9 +1393,13 @@ export enum PerformanceRating {
 }
 export enum PermitType {
     HotWork = "HotWork",
-    ElectricalIsolation = "ElectricalIsolation",
+    HeightWork = "HeightWork",
+    Shutdown = "Shutdown",
     ConfinedSpace = "ConfinedSpace",
-    WorkAtHeight = "WorkAtHeight",
+    Lifting = "Lifting",
+    ElectricalWork = "ElectricalWork",
+    ChemicalHandling = "ChemicalHandling",
+    GeneralWork = "GeneralWork",
     Excavation = "Excavation",
     ColdWork = "ColdWork"
 }
@@ -1349,20 +1457,24 @@ export interface backendInterface {
     acknowledgeObservation(token: string, obsNumber: string, remarks: string): Promise<Result_1>;
     actOnHIRA(token: string, hiraNumber: string, approve: boolean, remarks: string): Promise<Result_1>;
     actOnJSA(token: string, jsaNumber: string, approve: boolean, remarks: string): Promise<Result_1>;
-    actOnPTW(token: string, permitNum: string, approve: boolean, remarks: string): Promise<Result_1>;
     activateLoto(token: string, lotoNumber: string): Promise<Result_1>;
     addAirEmission(token: string, input: AddAirEmissionInput): Promise<Result_1>;
     addCarbonEntry(token: string, input: AddCarbonInput): Promise<Result_1>;
     addContractorDocument(token: string, contractorId: string, docType: string, expiryDate: string): Promise<Result_1>;
     addContractorEmployee(token: string, contractorId: string, emp: ContractorEmployee): Promise<Result_1>;
     addEffluentEntry(token: string, input: AddEffluentInput): Promise<Result_1>;
-    addEmployee(token: string, input: AddEmployeeInput): Promise<Result_41>;
+    addEmployee(token: string, input: AddEmployeeInput): Promise<Result_43>;
     addEnergyEntry(token: string, input: AddEnergyInput): Promise<Result_1>;
     addHazardRow(token: string, hiraNumber: string, rowId: string, hazardDescription: string, hazardType: HazardType, likelihood: bigint, severity: bigint, existingControls: string, additionalControls: string, residualRiskScore: bigint, responsibleEmpId: EmployeeId | null): Promise<Result_1>;
     addWasteEntry(token: string, input: AddWasteInput): Promise<Result_1>;
     addWaterEntry(token: string, input: AddWaterInput): Promise<Result_1>;
     answerRiskQuery(token: string, question: string): Promise<Result_5>;
-    calculateRiskScore(token: string): Promise<Result_49>;
+    approvePTWAreaInCharge(token: string, permitId: string, remarks: string, nominatedNextId: bigint): Promise<Result_1>;
+    approvePTWFinalIssuer(token: string, permitId: string, remarks: string): Promise<Result_1>;
+    approvePTWHOD(token: string, permitId: string, remarks: string, nominatedAreaInChargeId: bigint): Promise<Result_1>;
+    approvePTWIsolationAuthority(token: string, permitId: string, remarks: string, nominatedSafetyOfficerId: bigint): Promise<Result_1>;
+    approvePTWSafetyOfficer(token: string, permitId: string, remarks: string, nominatedFinalIssuerId: bigint): Promise<Result_1>;
+    calculateRiskScore(token: string): Promise<Result_51>;
     cancelLoto(token: string, lotoNumber: string, reason: string): Promise<Result_1>;
     cancelPermit(token: string, permitNumber: string, reason: string): Promise<Result_1>;
     changePassword(token: string, oldPassword: string, newPassword: string): Promise<Result_1>;
@@ -1370,7 +1482,7 @@ export interface backendInterface {
     checkOverdueCapas(): Promise<void>;
     closeCAPA(token: string, capaId: bigint): Promise<Result_1>;
     closeObservation(token: string, obsNumber: string): Promise<Result_1>;
-    closePTW(token: string, permitNum: string): Promise<Result_1>;
+    closePTW(token: string, permitId: string): Promise<Result_1>;
     completeLoto(token: string, lotoNumber: string): Promise<Result_1>;
     createCapa2(token: string, input: CreateCAPAInput): Promise<Result_5>;
     createContractor(token: string, input: CreateContractorInput): Promise<Result_5>;
@@ -1379,31 +1491,34 @@ export interface backendInterface {
     createLoto(token: string, input: CreateLOTOInput): Promise<Result_5>;
     createObservation(token: string, input: CreateObservationInput): Promise<Result_5>;
     createOrUpdatePtwExtension(token: string, permitNumber: string, ext: PTWExtension): Promise<Result_1>;
-    createPTW(token: string, input: CreatePTWInput): Promise<Result_30>;
+    createPTW(token: string, input: CreatePermitInput): Promise<Result_5>;
     createPpeItem(token: string, input: CreatePPEItemInput): Promise<Result_5>;
     createTraining(token: string, input: CreateTrainingInput): Promise<Result_23>;
     createUser(token: string, input: CreateUserInput): Promise<Result>;
     extendPermit(token: string, permitNumber: string, newEndTime: Timestamp, reason: string): Promise<Result_1>;
-    getBbsStats(token: string): Promise<Result_48>;
-    getCapa2(token: string, capaNumber: string): Promise<Result_47>;
-    getCapa2Stats(token: string): Promise<Result_46>;
-    getContractor(token: string, contractorId: string): Promise<Result_45>;
-    getContractorStats(token: string): Promise<Result_44>;
-    getDeptOHSEScores(token: string): Promise<Result_43>;
-    getDeptRiskBreakdown(token: string): Promise<Result_42>;
-    getEmployee(token: string, empCode: string): Promise<Result_41>;
-    getEsgData(token: string): Promise<Result_40>;
-    getEsgStats(token: string, month: bigint | null, year: bigint | null, department: string | null): Promise<Result_39>;
-    getHIRA(token: string, hiraNumber: string): Promise<Result_38>;
+    getBbsStats(token: string): Promise<Result_50>;
+    getCapa2(token: string, capaNumber: string): Promise<Result_49>;
+    getCapa2Stats(token: string): Promise<Result_48>;
+    getContractor(token: string, contractorId: string): Promise<Result_47>;
+    getContractorStats(token: string): Promise<Result_46>;
+    getDepartments(token: string): Promise<Result_36>;
+    getDeptOHSEScores(token: string): Promise<Result_45>;
+    getDeptRiskBreakdown(token: string): Promise<Result_44>;
+    getEmployee(token: string, empCode: string): Promise<Result_43>;
+    getEsgData(token: string): Promise<Result_42>;
+    getEsgStats(token: string, month: bigint | null, year: bigint | null, department: string | null): Promise<Result_41>;
+    getHIRA(token: string, hiraNumber: string): Promise<Result_40>;
     getIncident(token: string, incNum: string): Promise<Result_4>;
-    getIncidentTrend(token: string, year: bigint): Promise<Result_37>;
-    getJSA(token: string, jsaNumber: string): Promise<Result_36>;
-    getKPISummary(token: string, filterDept: string | null): Promise<Result_35>;
-    getLoto(token: string, lotoNumber: string): Promise<Result_34>;
-    getLotoStats(token: string): Promise<Result_33>;
-    getNotifications(token: string): Promise<Result_32>;
-    getObservation(token: string, obsNumber: string): Promise<Result_31>;
-    getPTW(token: string, permitNum: string): Promise<Result_30>;
+    getIncidentTrend(token: string, year: bigint): Promise<Result_39>;
+    getJSA(token: string, jsaNumber: string): Promise<Result_38>;
+    getKPISummary(token: string, filterDept: string | null): Promise<Result_37>;
+    getLocations(token: string): Promise<Result_36>;
+    getLoto(token: string, lotoNumber: string): Promise<Result_35>;
+    getLotoStats(token: string): Promise<Result_34>;
+    getNotifications(token: string): Promise<Result_33>;
+    getObservation(token: string, obsNumber: string): Promise<Result_32>;
+    getPTW(token: string, permitId: string): Promise<Result_31>;
+    getPTWMasterData(token: string): Promise<Result_30>;
     getPpeStats(token: string): Promise<Result_29>;
     getPtwDashboardStats(token: string): Promise<Result_28>;
     getPtwExtension(token: string, permitNumber: string): Promise<Result_27>;
@@ -1434,10 +1549,12 @@ export interface backendInterface {
     markAttendance(token: string, trainingId: string, empCode: string, attendance: AttendanceStatus): Promise<Result_1>;
     markNotifRead(token: string, notifId: bigint): Promise<Result_1>;
     recordContractorPerformance(token: string, contractorId: string, performance: ContractorPerformance): Promise<Result_1>;
+    recordEnergisation(token: string, permitId: string, record: EnergisationRecord): Promise<Result_1>;
     recordInduction(token: string, contractorId: string, empIdNumber: string, passed: boolean): Promise<Result_5>;
     recordJSABriefing(token: string, jsaNumber: string, attendeeIds: Array<EmployeeId>): Promise<Result_1>;
     recordPpeInspection(token: string, itemId: string, condition: PPEInspectionCondition, remarks: string, inspectionDate: string): Promise<Result_5>;
     recordToolboxTalk(token: string, permitNumber: string, attendeeIds: Array<EmployeeId>): Promise<Result_1>;
+    rejectPTW(token: string, permitId: string, remarks: string): Promise<Result_1>;
     reportIncident(token: string, input: CreateIncidentInput): Promise<Result_4>;
     resetPassword(token: string, targetEmployeeId: EmployeeId, newPassword: string): Promise<Result_1>;
     setPtwGasTest(token: string, permitNumber: string, o2: number, lel: number, h2s: number, co: number): Promise<Result_3>;
@@ -1445,7 +1562,8 @@ export interface backendInterface {
     submitCapa2ForVerification(token: string, capaNumber: string): Promise<Result_1>;
     submitHIRAForApproval(token: string, hiraNumber: string): Promise<Result_1>;
     submitJSAForApproval(token: string, jsaNumber: string): Promise<Result_1>;
-    submitPTW(token: string, permitNum: string): Promise<Result_1>;
+    submitPTW(token: string, permitId: string, nominatedHodId: bigint): Promise<Result_1>;
+    suspendPTW(token: string, permitId: string, reason: string): Promise<Result_1>;
     unreadNotifCount(token: string): Promise<Result_2>;
     updateCapa2Progress(token: string, capaNumber: string, progressUpdate: string, evidence: string | null): Promise<Result_1>;
     updateContractorStatus(token: string, contractorId: string, status: ContractorStatus): Promise<Result_1>;

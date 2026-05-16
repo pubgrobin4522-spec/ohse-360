@@ -93,13 +93,14 @@ export type AirPollutant = { 'CO2' : null } |
   { 'SOx' : null } |
   { 'VOC' : null } |
   { 'PM10' : null };
-export interface ApprovalStepView {
-  'approverId' : EmployeeId,
-  'role' : Role,
-  'approverName' : string,
-  'approved' : [] | [boolean],
-  'actionAt' : [] | [Timestamp],
+export interface ApprovalSignature {
+  'name' : string,
+  'designation' : string,
+  'approvalStatus' : string,
+  'signedAt' : [] | [Timestamp],
+  'employeeId' : EmployeeId,
   'remarks' : string,
+  'ipAddress' : string,
 }
 export type AttendanceStatus = { 'Present' : null } |
   { 'Absent' : null };
@@ -332,15 +333,28 @@ export interface CreatePPEItemInput {
   'itemType' : string,
   'standard' : string,
 }
-export interface CreatePTWInput {
-  'ppeRequired' : Array<string>,
-  'riskAssessed' : boolean,
-  'workDescription' : string,
+export interface CreatePermitInput {
+  'crossReference' : string,
+  'nominatedHodEmployeeId' : [] | [EmployeeId],
+  'supervisorName' : string,
+  'selectedPPE' : Array<string>,
+  'timeStart' : string,
+  'jobLocation' : string,
+  'area' : string,
+  'jobDescription' : string,
+  'validityDate' : string,
+  'insurance' : [] | [InsuranceInfo],
   'permitType' : PermitType,
-  'endDateTime' : string,
-  'startDateTime' : string,
-  'location' : string,
-  'contractorTeam' : string,
+  'issuingDepartment' : string,
+  'isolation' : [] | [IsolationDetail],
+  'selectedHazards' : Array<string>,
+  'checklist' : Array<[string, boolean]>,
+  'customHazard' : string,
+  'issuedTo' : string,
+  'department' : string,
+  'timeEnd' : string,
+  'riskLevel' : RiskLevel,
+  'contractorName' : string,
 }
 export interface CreateTrainingInput {
   'attendeeCodes' : Array<string>,
@@ -401,6 +415,15 @@ export interface EmployeeView {
 export type EmploymentType = { 'Contract' : null } |
   { 'FullTime' : null } |
   { 'Temporary' : null };
+export interface EnergisationRecord {
+  'signature' : string,
+  'approverEmployeeId' : EmployeeId,
+  'approvedAt' : [] | [Timestamp],
+  'approverName' : string,
+  'checklistItems' : Array<[string, boolean]>,
+  'lotoLockNumber' : string,
+  'energisationType' : string,
+}
 export interface EnergyEntry {
   'month' : bigint,
   'carbonEquivalent' : number,
@@ -503,6 +526,28 @@ export interface IncidentView {
 export type InductionStatus = { 'Fail' : null } |
   { 'Pass' : null } |
   { 'Pending' : null };
+export interface InsuranceInfo {
+  'insuranceType' : InsuranceType,
+  'documentUrls' : Array<string>,
+  'validFrom' : string,
+  'validTill' : string,
+  'policyNumber' : string,
+  'verificationStatus' : string,
+}
+export type InsuranceType = { 'ESI' : null } |
+  { 'GroupAccident' : null } |
+  { 'WorkerCompensation' : null } |
+  { 'EmployeeCompensation' : null };
+export interface IsolationDetail {
+  'serviceOptions' : Array<string>,
+  'description' : string,
+  'isolationRequired' : boolean,
+  'electricalOptions' : Array<string>,
+  'isolationBy' : EmployeeId,
+  'isolationDateTime' : [] | [Timestamp],
+  'lotoLockNumber' : string,
+  'verificationStatus' : string,
+}
 export interface IsolationPoint {
   'status' : IsolationPointStatus,
   'pointId' : string,
@@ -711,35 +756,26 @@ export interface PTWExtensionView {
   'emergencyRescuePlan' : boolean,
   'toolboxTalkDone' : boolean,
 }
-export type PTWStatus = { 'PendingSafetyOfficer' : null } |
-  { 'Closed' : null } |
+export interface PTWMasterData {
+  'departments' : Array<string>,
+  'hazards' : Array<string>,
+  'ppeList' : Array<string>,
+  'permitTypes' : Array<string>,
+  'locations' : Array<string>,
+}
+export type PTWStatus = { 'Closed' : null } |
+  { 'HODReview' : null } |
   { 'Active' : null } |
+  { 'IsolationReview' : null } |
+  { 'AreaReview' : null } |
+  { 'Approved' : null } |
+  { 'Suspended' : null } |
   { 'Draft' : null } |
   { 'Rejected' : null } |
-  { 'PendingAreaInCharge' : null } |
-  { 'PendingHOD' : null } |
-  { 'Completed' : null };
-export interface PTWView {
-  'status' : PTWStatus,
-  'hodStep' : [] | [ApprovalStepView],
-  'soStep' : [] | [ApprovalStepView],
-  'permitNumber' : string,
-  'rejectedRemarks' : string,
-  'ppeRequired' : Array<string>,
-  'createdAt' : Timestamp,
-  'riskAssessed' : boolean,
-  'workDescription' : string,
-  'permitType' : PermitType,
-  'closedAt' : [] | [Timestamp],
-  'endDateTime' : string,
-  'rejectedAt' : [] | [Timestamp],
-  'requestedById' : EmployeeId,
-  'requestedByName' : string,
-  'startDateTime' : string,
-  'location' : string,
-  'contractorTeam' : string,
-  'aicStep' : [] | [ApprovalStepView],
-}
+  { 'FinalApproval' : null } |
+  { 'Submitted' : null } |
+  { 'SafetyReview' : null } |
+  { 'Expired' : null };
 export type PerformanceRating = { 'Fair' : null } |
   { 'Good' : null } |
   { 'Poor' : null } |
@@ -751,10 +787,66 @@ export interface PermitExtension {
   'extendedBy' : EmployeeId,
   'reason' : string,
 }
+export interface PermitToWorkView {
+  'id' : string,
+  'requestorSignature' : [] | [ApprovalSignature],
+  'status' : PTWStatus,
+  'crossReference' : string,
+  'safetyOfficerSignature' : [] | [ApprovalSignature],
+  'nominatedHodEmployeeId' : [] | [EmployeeId],
+  'nominatedAreaInChargeEmployeeId' : [] | [EmployeeId],
+  'supervisorName' : string,
+  'selectedPPE' : Array<string>,
+  'isolationAuthoritySignature' : [] | [ApprovalSignature],
+  'timeStart' : string,
+  'jobLocation' : string,
+  'area' : string,
+  'jobDescription' : string,
+  'createdAt' : Timestamp,
+  'createdBy' : EmployeeId,
+  'coPpm' : [] | [number],
+  'linkedJsaNumber' : [] | [string],
+  'validityDate' : string,
+  'hodSignature' : [] | [ApprovalSignature],
+  'insurance' : [] | [InsuranceInfo],
+  'nominatedIsolationAuthorityEmployeeId' : [] | [EmployeeId],
+  'nominatedFinalIssuerEmployeeId' : [] | [EmployeeId],
+  'electricalEnergisation' : [] | [EnergisationRecord],
+  'updatedAt' : Timestamp,
+  'permitType' : PermitType,
+  'areaInChargeSignature' : [] | [ApprovalSignature],
+  'issuingDepartment' : string,
+  'isolation' : [] | [IsolationDetail],
+  'selectedHazards' : Array<string>,
+  'electricalApproverSignature' : [] | [ApprovalSignature],
+  'serviceProcessEnergisation' : [] | [EnergisationRecord],
+  'h2sPpm' : [] | [number],
+  'checklist' : Array<[string, boolean]>,
+  'serviceProcessApproverSignature' : [] | [ApprovalSignature],
+  'emergencyRescueDescription' : string,
+  'toolboxTalkAttendees' : Array<string>,
+  'customHazard' : string,
+  'issuedTo' : string,
+  'lelPercent' : [] | [number],
+  'department' : string,
+  'timeEnd' : string,
+  'nominatedSafetyOfficerEmployeeId' : [] | [EmployeeId],
+  'riskLevel' : RiskLevel,
+  'linkedHiraNumber' : [] | [string],
+  'o2Percent' : [] | [number],
+  'contractorName' : string,
+  'finalIssuerSignature' : [] | [ApprovalSignature],
+  'emergencyRescuePlan' : boolean,
+  'toolboxTalkDone' : boolean,
+}
 export type PermitType = { 'HotWork' : null } |
-  { 'ElectricalIsolation' : null } |
+  { 'HeightWork' : null } |
+  { 'Shutdown' : null } |
   { 'ConfinedSpace' : null } |
-  { 'WorkAtHeight' : null } |
+  { 'Lifting' : null } |
+  { 'ElectricalWork' : null } |
+  { 'ChemicalHandling' : null } |
+  { 'GeneralWork' : null } |
   { 'Excavation' : null } |
   { 'ColdWork' : null };
 export type Result = { 'ok' : UserView } |
@@ -765,7 +857,7 @@ export type Result_10 = { 'ok' : Array<PPEIssuance> } |
   { 'err' : string };
 export type Result_11 = { 'ok' : Array<PPEInventoryView> } |
   { 'err' : string };
-export type Result_12 = { 'ok' : Array<PTWView> } |
+export type Result_12 = { 'ok' : Array<PermitToWorkView> } |
   { 'err' : string };
 export type Result_13 = { 'ok' : Array<ObservationView> } |
   { 'err' : string };
@@ -822,13 +914,15 @@ export type Result_29 = {
   { 'err' : string };
 export type Result_3 = { 'ok' : boolean } |
   { 'err' : string };
-export type Result_30 = { 'ok' : PTWView } |
+export type Result_30 = { 'ok' : PTWMasterData } |
   { 'err' : string };
-export type Result_31 = { 'ok' : ObservationView } |
+export type Result_31 = { 'ok' : PermitToWorkView } |
   { 'err' : string };
-export type Result_32 = { 'ok' : Array<NotificationView> } |
+export type Result_32 = { 'ok' : ObservationView } |
   { 'err' : string };
-export type Result_33 = {
+export type Result_33 = { 'ok' : Array<NotificationView> } |
+  { 'err' : string };
+export type Result_34 = {
     'ok' : {
       'active' : bigint,
       'completedThisMonth' : bigint,
@@ -836,17 +930,21 @@ export type Result_33 = {
     }
   } |
   { 'err' : string };
-export type Result_34 = { 'ok' : LOTOView } |
+export type Result_35 = { 'ok' : LOTOView } |
   { 'err' : string };
-export type Result_35 = { 'ok' : KPISummary } |
+export type Result_36 = { 'ok' : Array<string> } |
   { 'err' : string };
-export type Result_36 = { 'ok' : JSAView } |
+export type Result_37 = { 'ok' : KPISummary } |
   { 'err' : string };
-export type Result_37 = { 'ok' : Array<MonthlyTrend> } |
+export type Result_38 = { 'ok' : JSAView } |
   { 'err' : string };
-export type Result_38 = { 'ok' : HIRAView } |
+export type Result_39 = { 'ok' : Array<MonthlyTrend> } |
   { 'err' : string };
-export type Result_39 = {
+export type Result_4 = { 'ok' : IncidentView } |
+  { 'err' : string };
+export type Result_40 = { 'ok' : HIRAView } |
+  { 'err' : string };
+export type Result_41 = {
     'ok' : {
       'complianceRate' : bigint,
       'carbonTotal' : number,
@@ -858,9 +956,7 @@ export type Result_39 = {
     }
   } |
   { 'err' : string };
-export type Result_4 = { 'ok' : IncidentView } |
-  { 'err' : string };
-export type Result_40 = {
+export type Result_42 = {
     'ok' : {
       'air' : Array<AirEmissionEntry>,
       'effluent' : Array<EffluentEntry>,
@@ -872,13 +968,13 @@ export type Result_40 = {
     }
   } |
   { 'err' : string };
-export type Result_41 = { 'ok' : EmployeeView } |
+export type Result_43 = { 'ok' : EmployeeView } |
   { 'err' : string };
-export type Result_42 = { 'ok' : Array<[string, bigint, string]> } |
+export type Result_44 = { 'ok' : Array<[string, bigint, string]> } |
   { 'err' : string };
-export type Result_43 = { 'ok' : Array<DeptOHSEScore> } |
+export type Result_45 = { 'ok' : Array<DeptOHSEScore> } |
   { 'err' : string };
-export type Result_44 = {
+export type Result_46 = {
     'ok' : {
       'performanceSummary' : Array<[string, string]>,
       'incidentCount' : bigint,
@@ -888,9 +984,9 @@ export type Result_44 = {
     }
   } |
   { 'err' : string };
-export type Result_45 = { 'ok' : ContractorView } |
+export type Result_47 = { 'ok' : ContractorView } |
   { 'err' : string };
-export type Result_46 = {
+export type Result_48 = {
     'ok' : {
       'byDept' : Array<[string, bigint]>,
       'closed' : bigint,
@@ -904,9 +1000,11 @@ export type Result_46 = {
     }
   } |
   { 'err' : string };
-export type Result_47 = { 'ok' : CAPA2View } |
+export type Result_49 = { 'ok' : CAPA2View } |
   { 'err' : string };
-export type Result_48 = {
+export type Result_5 = { 'ok' : string } |
+  { 'err' : string };
+export type Result_50 = {
     'ok' : {
       'byDept' : Array<[string, bigint]>,
       'total' : bigint,
@@ -916,9 +1014,7 @@ export type Result_48 = {
     }
   } |
   { 'err' : string };
-export type Result_49 = { 'ok' : RiskScoreView } |
-  { 'err' : string };
-export type Result_5 = { 'ok' : string } |
+export type Result_51 = { 'ok' : RiskScoreView } |
   { 'err' : string };
 export type Result_6 = {
     'ok' : { 'token' : string, 'mustChangePassword' : boolean }
@@ -1040,7 +1136,6 @@ export interface _SERVICE {
   'acknowledgeObservation' : ActorMethod<[string, string, string], Result_1>,
   'actOnHIRA' : ActorMethod<[string, string, boolean, string], Result_1>,
   'actOnJSA' : ActorMethod<[string, string, boolean, string], Result_1>,
-  'actOnPTW' : ActorMethod<[string, string, boolean, string], Result_1>,
   'activateLoto' : ActorMethod<[string, string], Result_1>,
   'addAirEmission' : ActorMethod<[string, AddAirEmissionInput], Result_1>,
   'addCarbonEntry' : ActorMethod<[string, AddCarbonInput], Result_1>,
@@ -1053,7 +1148,7 @@ export interface _SERVICE {
     Result_1
   >,
   'addEffluentEntry' : ActorMethod<[string, AddEffluentInput], Result_1>,
-  'addEmployee' : ActorMethod<[string, AddEmployeeInput], Result_41>,
+  'addEmployee' : ActorMethod<[string, AddEmployeeInput], Result_43>,
   'addEnergyEntry' : ActorMethod<[string, AddEnergyInput], Result_1>,
   'addHazardRow' : ActorMethod<
     [
@@ -1074,7 +1169,21 @@ export interface _SERVICE {
   'addWasteEntry' : ActorMethod<[string, AddWasteInput], Result_1>,
   'addWaterEntry' : ActorMethod<[string, AddWaterInput], Result_1>,
   'answerRiskQuery' : ActorMethod<[string, string], Result_5>,
-  'calculateRiskScore' : ActorMethod<[string], Result_49>,
+  'approvePTWAreaInCharge' : ActorMethod<
+    [string, string, string, bigint],
+    Result_1
+  >,
+  'approvePTWFinalIssuer' : ActorMethod<[string, string, string], Result_1>,
+  'approvePTWHOD' : ActorMethod<[string, string, string, bigint], Result_1>,
+  'approvePTWIsolationAuthority' : ActorMethod<
+    [string, string, string, bigint],
+    Result_1
+  >,
+  'approvePTWSafetyOfficer' : ActorMethod<
+    [string, string, string, bigint],
+    Result_1
+  >,
+  'calculateRiskScore' : ActorMethod<[string], Result_51>,
   'cancelLoto' : ActorMethod<[string, string, string], Result_1>,
   'cancelPermit' : ActorMethod<[string, string, string], Result_1>,
   'changePassword' : ActorMethod<[string, string, string], Result_1>,
@@ -1094,34 +1203,37 @@ export interface _SERVICE {
     [string, string, PTWExtension],
     Result_1
   >,
-  'createPTW' : ActorMethod<[string, CreatePTWInput], Result_30>,
+  'createPTW' : ActorMethod<[string, CreatePermitInput], Result_5>,
   'createPpeItem' : ActorMethod<[string, CreatePPEItemInput], Result_5>,
   'createTraining' : ActorMethod<[string, CreateTrainingInput], Result_23>,
   'createUser' : ActorMethod<[string, CreateUserInput], Result>,
   'extendPermit' : ActorMethod<[string, string, Timestamp, string], Result_1>,
-  'getBbsStats' : ActorMethod<[string], Result_48>,
-  'getCapa2' : ActorMethod<[string, string], Result_47>,
-  'getCapa2Stats' : ActorMethod<[string], Result_46>,
-  'getContractor' : ActorMethod<[string, string], Result_45>,
-  'getContractorStats' : ActorMethod<[string], Result_44>,
-  'getDeptOHSEScores' : ActorMethod<[string], Result_43>,
-  'getDeptRiskBreakdown' : ActorMethod<[string], Result_42>,
-  'getEmployee' : ActorMethod<[string, string], Result_41>,
-  'getEsgData' : ActorMethod<[string], Result_40>,
+  'getBbsStats' : ActorMethod<[string], Result_50>,
+  'getCapa2' : ActorMethod<[string, string], Result_49>,
+  'getCapa2Stats' : ActorMethod<[string], Result_48>,
+  'getContractor' : ActorMethod<[string, string], Result_47>,
+  'getContractorStats' : ActorMethod<[string], Result_46>,
+  'getDepartments' : ActorMethod<[string], Result_36>,
+  'getDeptOHSEScores' : ActorMethod<[string], Result_45>,
+  'getDeptRiskBreakdown' : ActorMethod<[string], Result_44>,
+  'getEmployee' : ActorMethod<[string, string], Result_43>,
+  'getEsgData' : ActorMethod<[string], Result_42>,
   'getEsgStats' : ActorMethod<
     [string, [] | [bigint], [] | [bigint], [] | [string]],
-    Result_39
+    Result_41
   >,
-  'getHIRA' : ActorMethod<[string, string], Result_38>,
+  'getHIRA' : ActorMethod<[string, string], Result_40>,
   'getIncident' : ActorMethod<[string, string], Result_4>,
-  'getIncidentTrend' : ActorMethod<[string, bigint], Result_37>,
-  'getJSA' : ActorMethod<[string, string], Result_36>,
-  'getKPISummary' : ActorMethod<[string, [] | [string]], Result_35>,
-  'getLoto' : ActorMethod<[string, string], Result_34>,
-  'getLotoStats' : ActorMethod<[string], Result_33>,
-  'getNotifications' : ActorMethod<[string], Result_32>,
-  'getObservation' : ActorMethod<[string, string], Result_31>,
-  'getPTW' : ActorMethod<[string, string], Result_30>,
+  'getIncidentTrend' : ActorMethod<[string, bigint], Result_39>,
+  'getJSA' : ActorMethod<[string, string], Result_38>,
+  'getKPISummary' : ActorMethod<[string, [] | [string]], Result_37>,
+  'getLocations' : ActorMethod<[string], Result_36>,
+  'getLoto' : ActorMethod<[string, string], Result_35>,
+  'getLotoStats' : ActorMethod<[string], Result_34>,
+  'getNotifications' : ActorMethod<[string], Result_33>,
+  'getObservation' : ActorMethod<[string, string], Result_32>,
+  'getPTW' : ActorMethod<[string, string], Result_31>,
+  'getPTWMasterData' : ActorMethod<[string], Result_30>,
   'getPpeStats' : ActorMethod<[string], Result_29>,
   'getPtwDashboardStats' : ActorMethod<[string], Result_28>,
   'getPtwExtension' : ActorMethod<[string, string], Result_27>,
@@ -1191,6 +1303,10 @@ export interface _SERVICE {
     [string, string, ContractorPerformance],
     Result_1
   >,
+  'recordEnergisation' : ActorMethod<
+    [string, string, EnergisationRecord],
+    Result_1
+  >,
   'recordInduction' : ActorMethod<[string, string, string, boolean], Result_5>,
   'recordJSABriefing' : ActorMethod<
     [string, string, Array<EmployeeId>],
@@ -1204,6 +1320,7 @@ export interface _SERVICE {
     [string, string, Array<EmployeeId>],
     Result_1
   >,
+  'rejectPTW' : ActorMethod<[string, string, string], Result_1>,
   'reportIncident' : ActorMethod<[string, CreateIncidentInput], Result_4>,
   'resetPassword' : ActorMethod<[string, EmployeeId, string], Result_1>,
   'setPtwGasTest' : ActorMethod<
@@ -1214,7 +1331,8 @@ export interface _SERVICE {
   'submitCapa2ForVerification' : ActorMethod<[string, string], Result_1>,
   'submitHIRAForApproval' : ActorMethod<[string, string], Result_1>,
   'submitJSAForApproval' : ActorMethod<[string, string], Result_1>,
-  'submitPTW' : ActorMethod<[string, string], Result_1>,
+  'submitPTW' : ActorMethod<[string, string, bigint], Result_1>,
+  'suspendPTW' : ActorMethod<[string, string, string], Result_1>,
   'unreadNotifCount' : ActorMethod<[string], Result_2>,
   'updateCapa2Progress' : ActorMethod<
     [string, string, string, [] | [string]],

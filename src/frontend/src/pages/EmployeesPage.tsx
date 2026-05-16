@@ -41,6 +41,7 @@ import type {
   backendInterface,
 } from "../backend";
 import { EmployeeStatus, EmploymentType } from "../backend";
+import { DEPARTMENTS } from "../constants/locations";
 import { useBackend } from "../hooks/useBackend";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -468,9 +469,43 @@ function AddEmployeeModal({
               type: "email",
               placeholder: "rajan@example.com",
             })}
-            {field("department", "Department", {
-              placeholder: "e.g. Production",
-            })}
+            {/* Department dropdown */}
+            <div className="space-y-1">
+              <Label
+                htmlFor="department"
+                className="text-sm font-medium text-foreground"
+              >
+                Department <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.department}
+                onValueChange={(v) => set("department", v)}
+              >
+                <SelectTrigger
+                  id="department"
+                  data-ocid="employees.form.department_input"
+                  className={errors.department ? "border-destructive" : ""}
+                  onBlur={() => blur("department")}
+                >
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.department && (
+                <p
+                  className="text-xs text-destructive"
+                  data-ocid="employees.form.department.field_error"
+                >
+                  {errors.department}
+                </p>
+              )}
+            </div>
             {field("designation", "Designation", {
               placeholder: "e.g. Shift Supervisor",
             })}

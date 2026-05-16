@@ -39,6 +39,7 @@ import {
   ObservationType,
   type ObservationView,
 } from "../backend";
+import { DEPARTMENTS, LOCATIONS } from "../constants/locations";
 import { useAuth } from "../hooks/useAuth";
 import { useBackend } from "../hooks/useBackend";
 
@@ -294,13 +295,24 @@ function SubmitObsDialog({ open, onClose, onCreated }: SubmitObsDialogProps) {
               <Label className="text-muted-foreground text-xs mb-1.5 block">
                 Location *
               </Label>
-              <Input
-                placeholder="e.g. Plant Floor A"
+              <Select
                 value={form.location}
-                onChange={(e) => set("location", e.target.value)}
-                className="bg-background"
-                data-ocid="observations.location_input"
-              />
+                onValueChange={(v) => set("location", v)}
+              >
+                <SelectTrigger
+                  className="bg-background"
+                  data-ocid="observations.location_input"
+                >
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOCATIONS.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.location && (
                 <p
                   className="text-destructive text-xs mt-1"
@@ -315,13 +327,21 @@ function SubmitObsDialog({ open, onClose, onCreated }: SubmitObsDialogProps) {
               <Label className="text-muted-foreground text-xs mb-1.5 block">
                 Area *
               </Label>
-              <Input
-                placeholder="e.g. Welding Bay"
-                value={form.area}
-                onChange={(e) => set("area", e.target.value)}
-                className="bg-background"
-                data-ocid="observations.area_input"
-              />
+              <Select value={form.area} onValueChange={(v) => set("area", v)}>
+                <SelectTrigger
+                  className="bg-background"
+                  data-ocid="observations.area_input"
+                >
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOCATIONS.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.area && (
                 <p
                   className="text-destructive text-xs mt-1"
@@ -336,13 +356,24 @@ function SubmitObsDialog({ open, onClose, onCreated }: SubmitObsDialogProps) {
               <Label className="text-muted-foreground text-xs mb-1.5 block">
                 Department *
               </Label>
-              <Input
-                placeholder="e.g. Production"
+              <Select
                 value={form.department}
-                onChange={(e) => set("department", e.target.value)}
-                className="bg-background"
-                data-ocid="observations.department_input"
-              />
+                onValueChange={(v) => set("department", v)}
+              >
+                <SelectTrigger
+                  className="bg-background"
+                  data-ocid="observations.department_input"
+                >
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.department && (
                 <p
                   className="text-destructive text-xs mt-1"

@@ -111,7 +111,7 @@ export const EmployeeView = IDL.Record({
   'department' : IDL.Text,
   'empStatus' : EmployeeStatus,
 });
-export const Result_41 = IDL.Variant({ 'ok' : EmployeeView, 'err' : IDL.Text });
+export const Result_43 = IDL.Variant({ 'ok' : EmployeeView, 'err' : IDL.Text });
 export const EnergyType = IDL.Variant({
   'Gas' : IDL.Null,
   'LPG' : IDL.Null,
@@ -186,7 +186,7 @@ export const RiskScoreView = IDL.Record({
   'riskLevel' : RiskLevel,
   'overdueCAPACount' : IDL.Nat,
 });
-export const Result_49 = IDL.Variant({
+export const Result_51 = IDL.Variant({
   'ok' : RiskScoreView,
   'err' : IDL.Text,
 });
@@ -320,72 +320,65 @@ export const PTWExtension = IDL.Record({
   'emergencyRescuePlan' : IDL.Bool,
   'toolboxTalkDone' : IDL.Bool,
 });
+export const InsuranceType = IDL.Variant({
+  'ESI' : IDL.Null,
+  'GroupAccident' : IDL.Null,
+  'WorkerCompensation' : IDL.Null,
+  'EmployeeCompensation' : IDL.Null,
+});
+export const InsuranceInfo = IDL.Record({
+  'insuranceType' : InsuranceType,
+  'documentUrls' : IDL.Vec(IDL.Text),
+  'validFrom' : IDL.Text,
+  'validTill' : IDL.Text,
+  'policyNumber' : IDL.Text,
+  'verificationStatus' : IDL.Text,
+});
 export const PermitType = IDL.Variant({
   'HotWork' : IDL.Null,
-  'ElectricalIsolation' : IDL.Null,
+  'HeightWork' : IDL.Null,
+  'Shutdown' : IDL.Null,
   'ConfinedSpace' : IDL.Null,
-  'WorkAtHeight' : IDL.Null,
+  'Lifting' : IDL.Null,
+  'ElectricalWork' : IDL.Null,
+  'ChemicalHandling' : IDL.Null,
+  'GeneralWork' : IDL.Null,
   'Excavation' : IDL.Null,
   'ColdWork' : IDL.Null,
 });
-export const CreatePTWInput = IDL.Record({
-  'ppeRequired' : IDL.Vec(IDL.Text),
-  'riskAssessed' : IDL.Bool,
-  'workDescription' : IDL.Text,
+export const IsolationDetail = IDL.Record({
+  'serviceOptions' : IDL.Vec(IDL.Text),
+  'description' : IDL.Text,
+  'isolationRequired' : IDL.Bool,
+  'electricalOptions' : IDL.Vec(IDL.Text),
+  'isolationBy' : EmployeeId,
+  'isolationDateTime' : IDL.Opt(Timestamp),
+  'lotoLockNumber' : IDL.Text,
+  'verificationStatus' : IDL.Text,
+});
+export const CreatePermitInput = IDL.Record({
+  'crossReference' : IDL.Text,
+  'nominatedHodEmployeeId' : IDL.Opt(EmployeeId),
+  'supervisorName' : IDL.Text,
+  'selectedPPE' : IDL.Vec(IDL.Text),
+  'timeStart' : IDL.Text,
+  'jobLocation' : IDL.Text,
+  'area' : IDL.Text,
+  'jobDescription' : IDL.Text,
+  'validityDate' : IDL.Text,
+  'insurance' : IDL.Opt(InsuranceInfo),
   'permitType' : PermitType,
-  'endDateTime' : IDL.Text,
-  'startDateTime' : IDL.Text,
-  'location' : IDL.Text,
-  'contractorTeam' : IDL.Text,
+  'issuingDepartment' : IDL.Text,
+  'isolation' : IDL.Opt(IsolationDetail),
+  'selectedHazards' : IDL.Vec(IDL.Text),
+  'checklist' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+  'customHazard' : IDL.Text,
+  'issuedTo' : IDL.Text,
+  'department' : IDL.Text,
+  'timeEnd' : IDL.Text,
+  'riskLevel' : RiskLevel,
+  'contractorName' : IDL.Text,
 });
-export const PTWStatus = IDL.Variant({
-  'PendingSafetyOfficer' : IDL.Null,
-  'Closed' : IDL.Null,
-  'Active' : IDL.Null,
-  'Draft' : IDL.Null,
-  'Rejected' : IDL.Null,
-  'PendingAreaInCharge' : IDL.Null,
-  'PendingHOD' : IDL.Null,
-  'Completed' : IDL.Null,
-});
-export const Role = IDL.Variant({
-  'HOD' : IDL.Null,
-  'SystemAdmin' : IDL.Null,
-  'ContractorAdmin' : IDL.Null,
-  'Employee' : IDL.Null,
-  'AreaInCharge' : IDL.Null,
-  'SafetyOfficer' : IDL.Null,
-});
-export const ApprovalStepView = IDL.Record({
-  'approverId' : EmployeeId,
-  'role' : Role,
-  'approverName' : IDL.Text,
-  'approved' : IDL.Opt(IDL.Bool),
-  'actionAt' : IDL.Opt(Timestamp),
-  'remarks' : IDL.Text,
-});
-export const PTWView = IDL.Record({
-  'status' : PTWStatus,
-  'hodStep' : IDL.Opt(ApprovalStepView),
-  'soStep' : IDL.Opt(ApprovalStepView),
-  'permitNumber' : IDL.Text,
-  'rejectedRemarks' : IDL.Text,
-  'ppeRequired' : IDL.Vec(IDL.Text),
-  'createdAt' : Timestamp,
-  'riskAssessed' : IDL.Bool,
-  'workDescription' : IDL.Text,
-  'permitType' : PermitType,
-  'closedAt' : IDL.Opt(Timestamp),
-  'endDateTime' : IDL.Text,
-  'rejectedAt' : IDL.Opt(Timestamp),
-  'requestedById' : EmployeeId,
-  'requestedByName' : IDL.Text,
-  'startDateTime' : IDL.Text,
-  'location' : IDL.Text,
-  'contractorTeam' : IDL.Text,
-  'aicStep' : IDL.Opt(ApprovalStepView),
-});
-export const Result_30 = IDL.Variant({ 'ok' : PTWView, 'err' : IDL.Text });
 export const CreatePPEItemInput = IDL.Record({
   'size' : IDL.Text,
   'shelfLifeMonths' : IDL.Nat,
@@ -445,6 +438,14 @@ export const TrainingView = IDL.Record({
   'department' : IDL.Text,
 });
 export const Result_23 = IDL.Variant({ 'ok' : TrainingView, 'err' : IDL.Text });
+export const Role = IDL.Variant({
+  'HOD' : IDL.Null,
+  'SystemAdmin' : IDL.Null,
+  'ContractorAdmin' : IDL.Null,
+  'Employee' : IDL.Null,
+  'AreaInCharge' : IDL.Null,
+  'SafetyOfficer' : IDL.Null,
+});
 export const CreateUserInput = IDL.Record({
   'password' : IDL.Text,
   'designation' : IDL.Text,
@@ -472,7 +473,7 @@ export const UserView = IDL.Record({
   'mustChangePassword' : IDL.Bool,
 });
 export const Result = IDL.Variant({ 'ok' : UserView, 'err' : IDL.Text });
-export const Result_48 = IDL.Variant({
+export const Result_50 = IDL.Variant({
   'ok' : IDL.Record({
     'byDept' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
     'total' : IDL.Nat,
@@ -511,8 +512,8 @@ export const CAPA2View = IDL.Record({
   'verifiedAt' : IDL.Opt(Timestamp),
   'capaNumber' : IDL.Text,
 });
-export const Result_47 = IDL.Variant({ 'ok' : CAPA2View, 'err' : IDL.Text });
-export const Result_46 = IDL.Variant({
+export const Result_49 = IDL.Variant({ 'ok' : CAPA2View, 'err' : IDL.Text });
+export const Result_48 = IDL.Variant({
   'ok' : IDL.Record({
     'byDept' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
     'closed' : IDL.Nat,
@@ -584,11 +585,11 @@ export const ContractorView = IDL.Record({
   'typeOfWork' : IDL.Text,
   'linkedPtwNumbers' : IDL.Vec(IDL.Text),
 });
-export const Result_45 = IDL.Variant({
+export const Result_47 = IDL.Variant({
   'ok' : ContractorView,
   'err' : IDL.Text,
 });
-export const Result_44 = IDL.Variant({
+export const Result_46 = IDL.Variant({
   'ok' : IDL.Record({
     'performanceSummary' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
     'incidentCount' : IDL.Nat,
@@ -598,15 +599,19 @@ export const Result_44 = IDL.Variant({
   }),
   'err' : IDL.Text,
 });
+export const Result_36 = IDL.Variant({
+  'ok' : IDL.Vec(IDL.Text),
+  'err' : IDL.Text,
+});
 export const DeptOHSEScore = IDL.Record({
   'score' : IDL.Float64,
   'department' : IDL.Text,
 });
-export const Result_43 = IDL.Variant({
+export const Result_45 = IDL.Variant({
   'ok' : IDL.Vec(DeptOHSEScore),
   'err' : IDL.Text,
 });
-export const Result_42 = IDL.Variant({
+export const Result_44 = IDL.Variant({
   'ok' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat, IDL.Text)),
   'err' : IDL.Text,
 });
@@ -676,7 +681,7 @@ export const EnergyEntry = IDL.Record({
   'loggedBy' : EmployeeId,
   'consumption' : IDL.Float64,
 });
-export const Result_40 = IDL.Variant({
+export const Result_42 = IDL.Variant({
   'ok' : IDL.Record({
     'air' : IDL.Vec(AirEmissionEntry),
     'effluent' : IDL.Vec(EffluentEntry),
@@ -688,7 +693,7 @@ export const Result_40 = IDL.Variant({
   }),
   'err' : IDL.Text,
 });
-export const Result_39 = IDL.Variant({
+export const Result_41 = IDL.Variant({
   'ok' : IDL.Record({
     'complianceRate' : IDL.Nat,
     'carbonTotal' : IDL.Float64,
@@ -744,7 +749,7 @@ export const HIRAView = IDL.Record({
   'department' : IDL.Text,
   'location' : IDL.Text,
 });
-export const Result_38 = IDL.Variant({ 'ok' : HIRAView, 'err' : IDL.Text });
+export const Result_40 = IDL.Variant({ 'ok' : HIRAView, 'err' : IDL.Text });
 export const IncidentStatus = IDL.Variant({
   'UnderInvestigation' : IDL.Null,
   'Open' : IDL.Null,
@@ -788,7 +793,7 @@ export const MonthlyTrend = IDL.Record({
   'year' : IDL.Nat,
   'incidentCount' : IDL.Nat,
 });
-export const Result_37 = IDL.Variant({
+export const Result_39 = IDL.Variant({
   'ok' : IDL.Vec(MonthlyTrend),
   'err' : IDL.Text,
 });
@@ -836,7 +841,7 @@ export const JSAView = IDL.Record({
   'department' : IDL.Text,
   'location' : IDL.Text,
 });
-export const Result_36 = IDL.Variant({ 'ok' : JSAView, 'err' : IDL.Text });
+export const Result_38 = IDL.Variant({ 'ok' : JSAView, 'err' : IDL.Text });
 export const KPISummary = IDL.Record({
   'trainingCompliancePct' : IDL.Float64,
   'auditScorePct' : IDL.Float64,
@@ -847,7 +852,7 @@ export const KPISummary = IDL.Record({
   'nearMissCount' : IDL.Nat,
   'totalIncidents' : IDL.Nat,
 });
-export const Result_35 = IDL.Variant({ 'ok' : KPISummary, 'err' : IDL.Text });
+export const Result_37 = IDL.Variant({ 'ok' : KPISummary, 'err' : IDL.Text });
 export const LOTOStatus = IDL.Variant({
   'Active' : IDL.Null,
   'Draft' : IDL.Null,
@@ -902,8 +907,8 @@ export const LOTOView = IDL.Record({
   'authorizedByEmpId' : IDL.Opt(EmployeeId),
   'procedureSteps' : IDL.Vec(IDL.Text),
 });
-export const Result_34 = IDL.Variant({ 'ok' : LOTOView, 'err' : IDL.Text });
-export const Result_33 = IDL.Variant({
+export const Result_35 = IDL.Variant({ 'ok' : LOTOView, 'err' : IDL.Text });
+export const Result_34 = IDL.Variant({
   'ok' : IDL.Record({
     'active' : IDL.Nat,
     'completedThisMonth' : IDL.Nat,
@@ -919,7 +924,7 @@ export const NotificationView = IDL.Record({
   'message' : IDL.Text,
   'recipientId' : EmployeeId,
 });
-export const Result_32 = IDL.Variant({
+export const Result_33 = IDL.Variant({
   'ok' : IDL.Vec(NotificationView),
   'err' : IDL.Text,
 });
@@ -949,8 +954,108 @@ export const ObservationView = IDL.Record({
   'obsNumber' : IDL.Text,
   'location' : IDL.Text,
 });
-export const Result_31 = IDL.Variant({
+export const Result_32 = IDL.Variant({
   'ok' : ObservationView,
+  'err' : IDL.Text,
+});
+export const ApprovalSignature = IDL.Record({
+  'name' : IDL.Text,
+  'designation' : IDL.Text,
+  'approvalStatus' : IDL.Text,
+  'signedAt' : IDL.Opt(Timestamp),
+  'employeeId' : EmployeeId,
+  'remarks' : IDL.Text,
+  'ipAddress' : IDL.Text,
+});
+export const PTWStatus = IDL.Variant({
+  'Closed' : IDL.Null,
+  'HODReview' : IDL.Null,
+  'Active' : IDL.Null,
+  'IsolationReview' : IDL.Null,
+  'AreaReview' : IDL.Null,
+  'Approved' : IDL.Null,
+  'Suspended' : IDL.Null,
+  'Draft' : IDL.Null,
+  'Rejected' : IDL.Null,
+  'FinalApproval' : IDL.Null,
+  'Submitted' : IDL.Null,
+  'SafetyReview' : IDL.Null,
+  'Expired' : IDL.Null,
+});
+export const EnergisationRecord = IDL.Record({
+  'signature' : IDL.Text,
+  'approverEmployeeId' : EmployeeId,
+  'approvedAt' : IDL.Opt(Timestamp),
+  'approverName' : IDL.Text,
+  'checklistItems' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+  'lotoLockNumber' : IDL.Text,
+  'energisationType' : IDL.Text,
+});
+export const PermitToWorkView = IDL.Record({
+  'id' : IDL.Text,
+  'requestorSignature' : IDL.Opt(ApprovalSignature),
+  'status' : PTWStatus,
+  'crossReference' : IDL.Text,
+  'safetyOfficerSignature' : IDL.Opt(ApprovalSignature),
+  'nominatedHodEmployeeId' : IDL.Opt(EmployeeId),
+  'nominatedAreaInChargeEmployeeId' : IDL.Opt(EmployeeId),
+  'supervisorName' : IDL.Text,
+  'selectedPPE' : IDL.Vec(IDL.Text),
+  'isolationAuthoritySignature' : IDL.Opt(ApprovalSignature),
+  'timeStart' : IDL.Text,
+  'jobLocation' : IDL.Text,
+  'area' : IDL.Text,
+  'jobDescription' : IDL.Text,
+  'createdAt' : Timestamp,
+  'createdBy' : EmployeeId,
+  'coPpm' : IDL.Opt(IDL.Float64),
+  'linkedJsaNumber' : IDL.Opt(IDL.Text),
+  'validityDate' : IDL.Text,
+  'hodSignature' : IDL.Opt(ApprovalSignature),
+  'insurance' : IDL.Opt(InsuranceInfo),
+  'nominatedIsolationAuthorityEmployeeId' : IDL.Opt(EmployeeId),
+  'nominatedFinalIssuerEmployeeId' : IDL.Opt(EmployeeId),
+  'electricalEnergisation' : IDL.Opt(EnergisationRecord),
+  'updatedAt' : Timestamp,
+  'permitType' : PermitType,
+  'areaInChargeSignature' : IDL.Opt(ApprovalSignature),
+  'issuingDepartment' : IDL.Text,
+  'isolation' : IDL.Opt(IsolationDetail),
+  'selectedHazards' : IDL.Vec(IDL.Text),
+  'electricalApproverSignature' : IDL.Opt(ApprovalSignature),
+  'serviceProcessEnergisation' : IDL.Opt(EnergisationRecord),
+  'h2sPpm' : IDL.Opt(IDL.Float64),
+  'checklist' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+  'serviceProcessApproverSignature' : IDL.Opt(ApprovalSignature),
+  'emergencyRescueDescription' : IDL.Text,
+  'toolboxTalkAttendees' : IDL.Vec(IDL.Text),
+  'customHazard' : IDL.Text,
+  'issuedTo' : IDL.Text,
+  'lelPercent' : IDL.Opt(IDL.Float64),
+  'department' : IDL.Text,
+  'timeEnd' : IDL.Text,
+  'nominatedSafetyOfficerEmployeeId' : IDL.Opt(EmployeeId),
+  'riskLevel' : RiskLevel,
+  'linkedHiraNumber' : IDL.Opt(IDL.Text),
+  'o2Percent' : IDL.Opt(IDL.Float64),
+  'contractorName' : IDL.Text,
+  'finalIssuerSignature' : IDL.Opt(ApprovalSignature),
+  'emergencyRescuePlan' : IDL.Bool,
+  'toolboxTalkDone' : IDL.Bool,
+});
+export const Result_31 = IDL.Variant({
+  'ok' : PermitToWorkView,
+  'err' : IDL.Text,
+});
+export const PTWMasterData = IDL.Record({
+  'departments' : IDL.Vec(IDL.Text),
+  'hazards' : IDL.Vec(IDL.Text),
+  'ppeList' : IDL.Vec(IDL.Text),
+  'permitTypes' : IDL.Vec(IDL.Text),
+  'locations' : IDL.Vec(IDL.Text),
+});
+export const Result_30 = IDL.Variant({
+  'ok' : PTWMasterData,
   'err' : IDL.Text,
 });
 export const Result_29 = IDL.Variant({
@@ -1099,7 +1204,7 @@ export const Result_13 = IDL.Variant({
   'err' : IDL.Text,
 });
 export const Result_12 = IDL.Variant({
-  'ok' : IDL.Vec(PTWView),
+  'ok' : IDL.Vec(PermitToWorkView),
   'err' : IDL.Text,
 });
 export const PPEInventoryView = IDL.Record({
@@ -1186,11 +1291,6 @@ export const idlService = IDL.Service({
       [Result_1],
       [],
     ),
-  'actOnPTW' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Bool, IDL.Text],
-      [Result_1],
-      [],
-    ),
   'activateLoto' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
   'addAirEmission' : IDL.Func([IDL.Text, AddAirEmissionInput], [Result_1], []),
   'addCarbonEntry' : IDL.Func([IDL.Text, AddCarbonInput], [Result_1], []),
@@ -1205,7 +1305,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'addEffluentEntry' : IDL.Func([IDL.Text, AddEffluentInput], [Result_1], []),
-  'addEmployee' : IDL.Func([IDL.Text, AddEmployeeInput], [Result_41], []),
+  'addEmployee' : IDL.Func([IDL.Text, AddEmployeeInput], [Result_43], []),
   'addEnergyEntry' : IDL.Func([IDL.Text, AddEnergyInput], [Result_1], []),
   'addHazardRow' : IDL.Func(
       [
@@ -1227,7 +1327,32 @@ export const idlService = IDL.Service({
   'addWasteEntry' : IDL.Func([IDL.Text, AddWasteInput], [Result_1], []),
   'addWaterEntry' : IDL.Func([IDL.Text, AddWaterInput], [Result_1], []),
   'answerRiskQuery' : IDL.Func([IDL.Text, IDL.Text], [Result_5], ['query']),
-  'calculateRiskScore' : IDL.Func([IDL.Text], [Result_49], []),
+  'approvePTWAreaInCharge' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+      [Result_1],
+      [],
+    ),
+  'approvePTWFinalIssuer' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [Result_1],
+      [],
+    ),
+  'approvePTWHOD' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+      [Result_1],
+      [],
+    ),
+  'approvePTWIsolationAuthority' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+      [Result_1],
+      [],
+    ),
+  'approvePTWSafetyOfficer' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+      [Result_1],
+      [],
+    ),
+  'calculateRiskScore' : IDL.Func([IDL.Text], [Result_51], []),
   'cancelLoto' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
   'cancelPermit' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
   'changePassword' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
@@ -1256,7 +1381,7 @@ export const idlService = IDL.Service({
       [Result_1],
       [],
     ),
-  'createPTW' : IDL.Func([IDL.Text, CreatePTWInput], [Result_30], []),
+  'createPTW' : IDL.Func([IDL.Text, CreatePermitInput], [Result_5], []),
   'createPpeItem' : IDL.Func([IDL.Text, CreatePPEItemInput], [Result_5], []),
   'createTraining' : IDL.Func([IDL.Text, CreateTrainingInput], [Result_23], []),
   'createUser' : IDL.Func([IDL.Text, CreateUserInput], [Result], []),
@@ -1265,34 +1390,37 @@ export const idlService = IDL.Service({
       [Result_1],
       [],
     ),
-  'getBbsStats' : IDL.Func([IDL.Text], [Result_48], ['query']),
-  'getCapa2' : IDL.Func([IDL.Text, IDL.Text], [Result_47], ['query']),
-  'getCapa2Stats' : IDL.Func([IDL.Text], [Result_46], ['query']),
-  'getContractor' : IDL.Func([IDL.Text, IDL.Text], [Result_45], ['query']),
-  'getContractorStats' : IDL.Func([IDL.Text], [Result_44], ['query']),
-  'getDeptOHSEScores' : IDL.Func([IDL.Text], [Result_43], ['query']),
-  'getDeptRiskBreakdown' : IDL.Func([IDL.Text], [Result_42], ['query']),
-  'getEmployee' : IDL.Func([IDL.Text, IDL.Text], [Result_41], ['query']),
-  'getEsgData' : IDL.Func([IDL.Text], [Result_40], ['query']),
+  'getBbsStats' : IDL.Func([IDL.Text], [Result_50], ['query']),
+  'getCapa2' : IDL.Func([IDL.Text, IDL.Text], [Result_49], ['query']),
+  'getCapa2Stats' : IDL.Func([IDL.Text], [Result_48], ['query']),
+  'getContractor' : IDL.Func([IDL.Text, IDL.Text], [Result_47], ['query']),
+  'getContractorStats' : IDL.Func([IDL.Text], [Result_46], ['query']),
+  'getDepartments' : IDL.Func([IDL.Text], [Result_36], ['query']),
+  'getDeptOHSEScores' : IDL.Func([IDL.Text], [Result_45], ['query']),
+  'getDeptRiskBreakdown' : IDL.Func([IDL.Text], [Result_44], ['query']),
+  'getEmployee' : IDL.Func([IDL.Text, IDL.Text], [Result_43], ['query']),
+  'getEsgData' : IDL.Func([IDL.Text], [Result_42], ['query']),
   'getEsgStats' : IDL.Func(
       [IDL.Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat), IDL.Opt(IDL.Text)],
-      [Result_39],
+      [Result_41],
       ['query'],
     ),
-  'getHIRA' : IDL.Func([IDL.Text, IDL.Text], [Result_38], ['query']),
+  'getHIRA' : IDL.Func([IDL.Text, IDL.Text], [Result_40], ['query']),
   'getIncident' : IDL.Func([IDL.Text, IDL.Text], [Result_4], ['query']),
-  'getIncidentTrend' : IDL.Func([IDL.Text, IDL.Nat], [Result_37], ['query']),
-  'getJSA' : IDL.Func([IDL.Text, IDL.Text], [Result_36], ['query']),
+  'getIncidentTrend' : IDL.Func([IDL.Text, IDL.Nat], [Result_39], ['query']),
+  'getJSA' : IDL.Func([IDL.Text, IDL.Text], [Result_38], ['query']),
   'getKPISummary' : IDL.Func(
       [IDL.Text, IDL.Opt(IDL.Text)],
-      [Result_35],
+      [Result_37],
       ['query'],
     ),
-  'getLoto' : IDL.Func([IDL.Text, IDL.Text], [Result_34], ['query']),
-  'getLotoStats' : IDL.Func([IDL.Text], [Result_33], ['query']),
-  'getNotifications' : IDL.Func([IDL.Text], [Result_32], ['query']),
-  'getObservation' : IDL.Func([IDL.Text, IDL.Text], [Result_31], ['query']),
-  'getPTW' : IDL.Func([IDL.Text, IDL.Text], [Result_30], ['query']),
+  'getLocations' : IDL.Func([IDL.Text], [Result_36], ['query']),
+  'getLoto' : IDL.Func([IDL.Text, IDL.Text], [Result_35], ['query']),
+  'getLotoStats' : IDL.Func([IDL.Text], [Result_34], ['query']),
+  'getNotifications' : IDL.Func([IDL.Text], [Result_33], ['query']),
+  'getObservation' : IDL.Func([IDL.Text, IDL.Text], [Result_32], ['query']),
+  'getPTW' : IDL.Func([IDL.Text, IDL.Text], [Result_31], ['query']),
+  'getPTWMasterData' : IDL.Func([IDL.Text], [Result_30], ['query']),
   'getPpeStats' : IDL.Func([IDL.Text], [Result_29], ['query']),
   'getPtwDashboardStats' : IDL.Func([IDL.Text], [Result_28], ['query']),
   'getPtwExtension' : IDL.Func([IDL.Text, IDL.Text], [Result_27], ['query']),
@@ -1379,6 +1507,11 @@ export const idlService = IDL.Service({
       [Result_1],
       [],
     ),
+  'recordEnergisation' : IDL.Func(
+      [IDL.Text, IDL.Text, EnergisationRecord],
+      [Result_1],
+      [],
+    ),
   'recordInduction' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
       [Result_5],
@@ -1399,6 +1532,7 @@ export const idlService = IDL.Service({
       [Result_1],
       [],
     ),
+  'rejectPTW' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
   'reportIncident' : IDL.Func([IDL.Text, CreateIncidentInput], [Result_4], []),
   'resetPassword' : IDL.Func([IDL.Text, EmployeeId, IDL.Text], [Result_1], []),
   'setPtwGasTest' : IDL.Func(
@@ -1414,7 +1548,8 @@ export const idlService = IDL.Service({
   'submitCapa2ForVerification' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
   'submitHIRAForApproval' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
   'submitJSAForApproval' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
-  'submitPTW' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
+  'submitPTW' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [Result_1], []),
+  'suspendPTW' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
   'unreadNotifCount' : IDL.Func([IDL.Text], [Result_2], ['query']),
   'updateCapa2Progress' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
@@ -1555,7 +1690,7 @@ export const idlFactory = ({ IDL }) => {
     'department' : IDL.Text,
     'empStatus' : EmployeeStatus,
   });
-  const Result_41 = IDL.Variant({ 'ok' : EmployeeView, 'err' : IDL.Text });
+  const Result_43 = IDL.Variant({ 'ok' : EmployeeView, 'err' : IDL.Text });
   const EnergyType = IDL.Variant({
     'Gas' : IDL.Null,
     'LPG' : IDL.Null,
@@ -1630,7 +1765,7 @@ export const idlFactory = ({ IDL }) => {
     'riskLevel' : RiskLevel,
     'overdueCAPACount' : IDL.Nat,
   });
-  const Result_49 = IDL.Variant({ 'ok' : RiskScoreView, 'err' : IDL.Text });
+  const Result_51 = IDL.Variant({ 'ok' : RiskScoreView, 'err' : IDL.Text });
   const RootCauseCat = IDL.Variant({
     'ProcedureGap' : IDL.Null,
     'ManagementSystem' : IDL.Null,
@@ -1761,72 +1896,65 @@ export const idlFactory = ({ IDL }) => {
     'emergencyRescuePlan' : IDL.Bool,
     'toolboxTalkDone' : IDL.Bool,
   });
+  const InsuranceType = IDL.Variant({
+    'ESI' : IDL.Null,
+    'GroupAccident' : IDL.Null,
+    'WorkerCompensation' : IDL.Null,
+    'EmployeeCompensation' : IDL.Null,
+  });
+  const InsuranceInfo = IDL.Record({
+    'insuranceType' : InsuranceType,
+    'documentUrls' : IDL.Vec(IDL.Text),
+    'validFrom' : IDL.Text,
+    'validTill' : IDL.Text,
+    'policyNumber' : IDL.Text,
+    'verificationStatus' : IDL.Text,
+  });
   const PermitType = IDL.Variant({
     'HotWork' : IDL.Null,
-    'ElectricalIsolation' : IDL.Null,
+    'HeightWork' : IDL.Null,
+    'Shutdown' : IDL.Null,
     'ConfinedSpace' : IDL.Null,
-    'WorkAtHeight' : IDL.Null,
+    'Lifting' : IDL.Null,
+    'ElectricalWork' : IDL.Null,
+    'ChemicalHandling' : IDL.Null,
+    'GeneralWork' : IDL.Null,
     'Excavation' : IDL.Null,
     'ColdWork' : IDL.Null,
   });
-  const CreatePTWInput = IDL.Record({
-    'ppeRequired' : IDL.Vec(IDL.Text),
-    'riskAssessed' : IDL.Bool,
-    'workDescription' : IDL.Text,
+  const IsolationDetail = IDL.Record({
+    'serviceOptions' : IDL.Vec(IDL.Text),
+    'description' : IDL.Text,
+    'isolationRequired' : IDL.Bool,
+    'electricalOptions' : IDL.Vec(IDL.Text),
+    'isolationBy' : EmployeeId,
+    'isolationDateTime' : IDL.Opt(Timestamp),
+    'lotoLockNumber' : IDL.Text,
+    'verificationStatus' : IDL.Text,
+  });
+  const CreatePermitInput = IDL.Record({
+    'crossReference' : IDL.Text,
+    'nominatedHodEmployeeId' : IDL.Opt(EmployeeId),
+    'supervisorName' : IDL.Text,
+    'selectedPPE' : IDL.Vec(IDL.Text),
+    'timeStart' : IDL.Text,
+    'jobLocation' : IDL.Text,
+    'area' : IDL.Text,
+    'jobDescription' : IDL.Text,
+    'validityDate' : IDL.Text,
+    'insurance' : IDL.Opt(InsuranceInfo),
     'permitType' : PermitType,
-    'endDateTime' : IDL.Text,
-    'startDateTime' : IDL.Text,
-    'location' : IDL.Text,
-    'contractorTeam' : IDL.Text,
+    'issuingDepartment' : IDL.Text,
+    'isolation' : IDL.Opt(IsolationDetail),
+    'selectedHazards' : IDL.Vec(IDL.Text),
+    'checklist' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+    'customHazard' : IDL.Text,
+    'issuedTo' : IDL.Text,
+    'department' : IDL.Text,
+    'timeEnd' : IDL.Text,
+    'riskLevel' : RiskLevel,
+    'contractorName' : IDL.Text,
   });
-  const PTWStatus = IDL.Variant({
-    'PendingSafetyOfficer' : IDL.Null,
-    'Closed' : IDL.Null,
-    'Active' : IDL.Null,
-    'Draft' : IDL.Null,
-    'Rejected' : IDL.Null,
-    'PendingAreaInCharge' : IDL.Null,
-    'PendingHOD' : IDL.Null,
-    'Completed' : IDL.Null,
-  });
-  const Role = IDL.Variant({
-    'HOD' : IDL.Null,
-    'SystemAdmin' : IDL.Null,
-    'ContractorAdmin' : IDL.Null,
-    'Employee' : IDL.Null,
-    'AreaInCharge' : IDL.Null,
-    'SafetyOfficer' : IDL.Null,
-  });
-  const ApprovalStepView = IDL.Record({
-    'approverId' : EmployeeId,
-    'role' : Role,
-    'approverName' : IDL.Text,
-    'approved' : IDL.Opt(IDL.Bool),
-    'actionAt' : IDL.Opt(Timestamp),
-    'remarks' : IDL.Text,
-  });
-  const PTWView = IDL.Record({
-    'status' : PTWStatus,
-    'hodStep' : IDL.Opt(ApprovalStepView),
-    'soStep' : IDL.Opt(ApprovalStepView),
-    'permitNumber' : IDL.Text,
-    'rejectedRemarks' : IDL.Text,
-    'ppeRequired' : IDL.Vec(IDL.Text),
-    'createdAt' : Timestamp,
-    'riskAssessed' : IDL.Bool,
-    'workDescription' : IDL.Text,
-    'permitType' : PermitType,
-    'closedAt' : IDL.Opt(Timestamp),
-    'endDateTime' : IDL.Text,
-    'rejectedAt' : IDL.Opt(Timestamp),
-    'requestedById' : EmployeeId,
-    'requestedByName' : IDL.Text,
-    'startDateTime' : IDL.Text,
-    'location' : IDL.Text,
-    'contractorTeam' : IDL.Text,
-    'aicStep' : IDL.Opt(ApprovalStepView),
-  });
-  const Result_30 = IDL.Variant({ 'ok' : PTWView, 'err' : IDL.Text });
   const CreatePPEItemInput = IDL.Record({
     'size' : IDL.Text,
     'shelfLifeMonths' : IDL.Nat,
@@ -1886,6 +2014,14 @@ export const idlFactory = ({ IDL }) => {
     'department' : IDL.Text,
   });
   const Result_23 = IDL.Variant({ 'ok' : TrainingView, 'err' : IDL.Text });
+  const Role = IDL.Variant({
+    'HOD' : IDL.Null,
+    'SystemAdmin' : IDL.Null,
+    'ContractorAdmin' : IDL.Null,
+    'Employee' : IDL.Null,
+    'AreaInCharge' : IDL.Null,
+    'SafetyOfficer' : IDL.Null,
+  });
   const CreateUserInput = IDL.Record({
     'password' : IDL.Text,
     'designation' : IDL.Text,
@@ -1913,7 +2049,7 @@ export const idlFactory = ({ IDL }) => {
     'mustChangePassword' : IDL.Bool,
   });
   const Result = IDL.Variant({ 'ok' : UserView, 'err' : IDL.Text });
-  const Result_48 = IDL.Variant({
+  const Result_50 = IDL.Variant({
     'ok' : IDL.Record({
       'byDept' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
       'total' : IDL.Nat,
@@ -1952,8 +2088,8 @@ export const idlFactory = ({ IDL }) => {
     'verifiedAt' : IDL.Opt(Timestamp),
     'capaNumber' : IDL.Text,
   });
-  const Result_47 = IDL.Variant({ 'ok' : CAPA2View, 'err' : IDL.Text });
-  const Result_46 = IDL.Variant({
+  const Result_49 = IDL.Variant({ 'ok' : CAPA2View, 'err' : IDL.Text });
+  const Result_48 = IDL.Variant({
     'ok' : IDL.Record({
       'byDept' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
       'closed' : IDL.Nat,
@@ -2025,8 +2161,8 @@ export const idlFactory = ({ IDL }) => {
     'typeOfWork' : IDL.Text,
     'linkedPtwNumbers' : IDL.Vec(IDL.Text),
   });
-  const Result_45 = IDL.Variant({ 'ok' : ContractorView, 'err' : IDL.Text });
-  const Result_44 = IDL.Variant({
+  const Result_47 = IDL.Variant({ 'ok' : ContractorView, 'err' : IDL.Text });
+  const Result_46 = IDL.Variant({
     'ok' : IDL.Record({
       'performanceSummary' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
       'incidentCount' : IDL.Nat,
@@ -2036,15 +2172,16 @@ export const idlFactory = ({ IDL }) => {
     }),
     'err' : IDL.Text,
   });
+  const Result_36 = IDL.Variant({ 'ok' : IDL.Vec(IDL.Text), 'err' : IDL.Text });
   const DeptOHSEScore = IDL.Record({
     'score' : IDL.Float64,
     'department' : IDL.Text,
   });
-  const Result_43 = IDL.Variant({
+  const Result_45 = IDL.Variant({
     'ok' : IDL.Vec(DeptOHSEScore),
     'err' : IDL.Text,
   });
-  const Result_42 = IDL.Variant({
+  const Result_44 = IDL.Variant({
     'ok' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat, IDL.Text)),
     'err' : IDL.Text,
   });
@@ -2114,7 +2251,7 @@ export const idlFactory = ({ IDL }) => {
     'loggedBy' : EmployeeId,
     'consumption' : IDL.Float64,
   });
-  const Result_40 = IDL.Variant({
+  const Result_42 = IDL.Variant({
     'ok' : IDL.Record({
       'air' : IDL.Vec(AirEmissionEntry),
       'effluent' : IDL.Vec(EffluentEntry),
@@ -2126,7 +2263,7 @@ export const idlFactory = ({ IDL }) => {
     }),
     'err' : IDL.Text,
   });
-  const Result_39 = IDL.Variant({
+  const Result_41 = IDL.Variant({
     'ok' : IDL.Record({
       'complianceRate' : IDL.Nat,
       'carbonTotal' : IDL.Float64,
@@ -2182,7 +2319,7 @@ export const idlFactory = ({ IDL }) => {
     'department' : IDL.Text,
     'location' : IDL.Text,
   });
-  const Result_38 = IDL.Variant({ 'ok' : HIRAView, 'err' : IDL.Text });
+  const Result_40 = IDL.Variant({ 'ok' : HIRAView, 'err' : IDL.Text });
   const IncidentStatus = IDL.Variant({
     'UnderInvestigation' : IDL.Null,
     'Open' : IDL.Null,
@@ -2226,7 +2363,7 @@ export const idlFactory = ({ IDL }) => {
     'year' : IDL.Nat,
     'incidentCount' : IDL.Nat,
   });
-  const Result_37 = IDL.Variant({
+  const Result_39 = IDL.Variant({
     'ok' : IDL.Vec(MonthlyTrend),
     'err' : IDL.Text,
   });
@@ -2274,7 +2411,7 @@ export const idlFactory = ({ IDL }) => {
     'department' : IDL.Text,
     'location' : IDL.Text,
   });
-  const Result_36 = IDL.Variant({ 'ok' : JSAView, 'err' : IDL.Text });
+  const Result_38 = IDL.Variant({ 'ok' : JSAView, 'err' : IDL.Text });
   const KPISummary = IDL.Record({
     'trainingCompliancePct' : IDL.Float64,
     'auditScorePct' : IDL.Float64,
@@ -2285,7 +2422,7 @@ export const idlFactory = ({ IDL }) => {
     'nearMissCount' : IDL.Nat,
     'totalIncidents' : IDL.Nat,
   });
-  const Result_35 = IDL.Variant({ 'ok' : KPISummary, 'err' : IDL.Text });
+  const Result_37 = IDL.Variant({ 'ok' : KPISummary, 'err' : IDL.Text });
   const LOTOStatus = IDL.Variant({
     'Active' : IDL.Null,
     'Draft' : IDL.Null,
@@ -2340,8 +2477,8 @@ export const idlFactory = ({ IDL }) => {
     'authorizedByEmpId' : IDL.Opt(EmployeeId),
     'procedureSteps' : IDL.Vec(IDL.Text),
   });
-  const Result_34 = IDL.Variant({ 'ok' : LOTOView, 'err' : IDL.Text });
-  const Result_33 = IDL.Variant({
+  const Result_35 = IDL.Variant({ 'ok' : LOTOView, 'err' : IDL.Text });
+  const Result_34 = IDL.Variant({
     'ok' : IDL.Record({
       'active' : IDL.Nat,
       'completedThisMonth' : IDL.Nat,
@@ -2357,7 +2494,7 @@ export const idlFactory = ({ IDL }) => {
     'message' : IDL.Text,
     'recipientId' : EmployeeId,
   });
-  const Result_32 = IDL.Variant({
+  const Result_33 = IDL.Variant({
     'ok' : IDL.Vec(NotificationView),
     'err' : IDL.Text,
   });
@@ -2387,7 +2524,101 @@ export const idlFactory = ({ IDL }) => {
     'obsNumber' : IDL.Text,
     'location' : IDL.Text,
   });
-  const Result_31 = IDL.Variant({ 'ok' : ObservationView, 'err' : IDL.Text });
+  const Result_32 = IDL.Variant({ 'ok' : ObservationView, 'err' : IDL.Text });
+  const ApprovalSignature = IDL.Record({
+    'name' : IDL.Text,
+    'designation' : IDL.Text,
+    'approvalStatus' : IDL.Text,
+    'signedAt' : IDL.Opt(Timestamp),
+    'employeeId' : EmployeeId,
+    'remarks' : IDL.Text,
+    'ipAddress' : IDL.Text,
+  });
+  const PTWStatus = IDL.Variant({
+    'Closed' : IDL.Null,
+    'HODReview' : IDL.Null,
+    'Active' : IDL.Null,
+    'IsolationReview' : IDL.Null,
+    'AreaReview' : IDL.Null,
+    'Approved' : IDL.Null,
+    'Suspended' : IDL.Null,
+    'Draft' : IDL.Null,
+    'Rejected' : IDL.Null,
+    'FinalApproval' : IDL.Null,
+    'Submitted' : IDL.Null,
+    'SafetyReview' : IDL.Null,
+    'Expired' : IDL.Null,
+  });
+  const EnergisationRecord = IDL.Record({
+    'signature' : IDL.Text,
+    'approverEmployeeId' : EmployeeId,
+    'approvedAt' : IDL.Opt(Timestamp),
+    'approverName' : IDL.Text,
+    'checklistItems' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+    'lotoLockNumber' : IDL.Text,
+    'energisationType' : IDL.Text,
+  });
+  const PermitToWorkView = IDL.Record({
+    'id' : IDL.Text,
+    'requestorSignature' : IDL.Opt(ApprovalSignature),
+    'status' : PTWStatus,
+    'crossReference' : IDL.Text,
+    'safetyOfficerSignature' : IDL.Opt(ApprovalSignature),
+    'nominatedHodEmployeeId' : IDL.Opt(EmployeeId),
+    'nominatedAreaInChargeEmployeeId' : IDL.Opt(EmployeeId),
+    'supervisorName' : IDL.Text,
+    'selectedPPE' : IDL.Vec(IDL.Text),
+    'isolationAuthoritySignature' : IDL.Opt(ApprovalSignature),
+    'timeStart' : IDL.Text,
+    'jobLocation' : IDL.Text,
+    'area' : IDL.Text,
+    'jobDescription' : IDL.Text,
+    'createdAt' : Timestamp,
+    'createdBy' : EmployeeId,
+    'coPpm' : IDL.Opt(IDL.Float64),
+    'linkedJsaNumber' : IDL.Opt(IDL.Text),
+    'validityDate' : IDL.Text,
+    'hodSignature' : IDL.Opt(ApprovalSignature),
+    'insurance' : IDL.Opt(InsuranceInfo),
+    'nominatedIsolationAuthorityEmployeeId' : IDL.Opt(EmployeeId),
+    'nominatedFinalIssuerEmployeeId' : IDL.Opt(EmployeeId),
+    'electricalEnergisation' : IDL.Opt(EnergisationRecord),
+    'updatedAt' : Timestamp,
+    'permitType' : PermitType,
+    'areaInChargeSignature' : IDL.Opt(ApprovalSignature),
+    'issuingDepartment' : IDL.Text,
+    'isolation' : IDL.Opt(IsolationDetail),
+    'selectedHazards' : IDL.Vec(IDL.Text),
+    'electricalApproverSignature' : IDL.Opt(ApprovalSignature),
+    'serviceProcessEnergisation' : IDL.Opt(EnergisationRecord),
+    'h2sPpm' : IDL.Opt(IDL.Float64),
+    'checklist' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Bool)),
+    'serviceProcessApproverSignature' : IDL.Opt(ApprovalSignature),
+    'emergencyRescueDescription' : IDL.Text,
+    'toolboxTalkAttendees' : IDL.Vec(IDL.Text),
+    'customHazard' : IDL.Text,
+    'issuedTo' : IDL.Text,
+    'lelPercent' : IDL.Opt(IDL.Float64),
+    'department' : IDL.Text,
+    'timeEnd' : IDL.Text,
+    'nominatedSafetyOfficerEmployeeId' : IDL.Opt(EmployeeId),
+    'riskLevel' : RiskLevel,
+    'linkedHiraNumber' : IDL.Opt(IDL.Text),
+    'o2Percent' : IDL.Opt(IDL.Float64),
+    'contractorName' : IDL.Text,
+    'finalIssuerSignature' : IDL.Opt(ApprovalSignature),
+    'emergencyRescuePlan' : IDL.Bool,
+    'toolboxTalkDone' : IDL.Bool,
+  });
+  const Result_31 = IDL.Variant({ 'ok' : PermitToWorkView, 'err' : IDL.Text });
+  const PTWMasterData = IDL.Record({
+    'departments' : IDL.Vec(IDL.Text),
+    'hazards' : IDL.Vec(IDL.Text),
+    'ppeList' : IDL.Vec(IDL.Text),
+    'permitTypes' : IDL.Vec(IDL.Text),
+    'locations' : IDL.Vec(IDL.Text),
+  });
+  const Result_30 = IDL.Variant({ 'ok' : PTWMasterData, 'err' : IDL.Text });
   const Result_29 = IDL.Variant({
     'ok' : IDL.Record({
       'complianceRate' : IDL.Nat,
@@ -2521,7 +2752,10 @@ export const idlFactory = ({ IDL }) => {
     'ok' : IDL.Vec(ObservationView),
     'err' : IDL.Text,
   });
-  const Result_12 = IDL.Variant({ 'ok' : IDL.Vec(PTWView), 'err' : IDL.Text });
+  const Result_12 = IDL.Variant({
+    'ok' : IDL.Vec(PermitToWorkView),
+    'err' : IDL.Text,
+  });
   const PPEInventoryView = IDL.Record({
     'itemId' : IDL.Text,
     'quantityInStock' : IDL.Int,
@@ -2600,11 +2834,6 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
-    'actOnPTW' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Bool, IDL.Text],
-        [Result_1],
-        [],
-      ),
     'activateLoto' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
     'addAirEmission' : IDL.Func(
         [IDL.Text, AddAirEmissionInput],
@@ -2623,7 +2852,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'addEffluentEntry' : IDL.Func([IDL.Text, AddEffluentInput], [Result_1], []),
-    'addEmployee' : IDL.Func([IDL.Text, AddEmployeeInput], [Result_41], []),
+    'addEmployee' : IDL.Func([IDL.Text, AddEmployeeInput], [Result_43], []),
     'addEnergyEntry' : IDL.Func([IDL.Text, AddEnergyInput], [Result_1], []),
     'addHazardRow' : IDL.Func(
         [
@@ -2645,7 +2874,32 @@ export const idlFactory = ({ IDL }) => {
     'addWasteEntry' : IDL.Func([IDL.Text, AddWasteInput], [Result_1], []),
     'addWaterEntry' : IDL.Func([IDL.Text, AddWaterInput], [Result_1], []),
     'answerRiskQuery' : IDL.Func([IDL.Text, IDL.Text], [Result_5], ['query']),
-    'calculateRiskScore' : IDL.Func([IDL.Text], [Result_49], []),
+    'approvePTWAreaInCharge' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+        [Result_1],
+        [],
+      ),
+    'approvePTWFinalIssuer' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [Result_1],
+        [],
+      ),
+    'approvePTWHOD' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+        [Result_1],
+        [],
+      ),
+    'approvePTWIsolationAuthority' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+        [Result_1],
+        [],
+      ),
+    'approvePTWSafetyOfficer' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+        [Result_1],
+        [],
+      ),
+    'calculateRiskScore' : IDL.Func([IDL.Text], [Result_51], []),
     'cancelLoto' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
     'cancelPermit' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
     'changePassword' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
@@ -2674,7 +2928,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
-    'createPTW' : IDL.Func([IDL.Text, CreatePTWInput], [Result_30], []),
+    'createPTW' : IDL.Func([IDL.Text, CreatePermitInput], [Result_5], []),
     'createPpeItem' : IDL.Func([IDL.Text, CreatePPEItemInput], [Result_5], []),
     'createTraining' : IDL.Func(
         [IDL.Text, CreateTrainingInput],
@@ -2687,34 +2941,37 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
-    'getBbsStats' : IDL.Func([IDL.Text], [Result_48], ['query']),
-    'getCapa2' : IDL.Func([IDL.Text, IDL.Text], [Result_47], ['query']),
-    'getCapa2Stats' : IDL.Func([IDL.Text], [Result_46], ['query']),
-    'getContractor' : IDL.Func([IDL.Text, IDL.Text], [Result_45], ['query']),
-    'getContractorStats' : IDL.Func([IDL.Text], [Result_44], ['query']),
-    'getDeptOHSEScores' : IDL.Func([IDL.Text], [Result_43], ['query']),
-    'getDeptRiskBreakdown' : IDL.Func([IDL.Text], [Result_42], ['query']),
-    'getEmployee' : IDL.Func([IDL.Text, IDL.Text], [Result_41], ['query']),
-    'getEsgData' : IDL.Func([IDL.Text], [Result_40], ['query']),
+    'getBbsStats' : IDL.Func([IDL.Text], [Result_50], ['query']),
+    'getCapa2' : IDL.Func([IDL.Text, IDL.Text], [Result_49], ['query']),
+    'getCapa2Stats' : IDL.Func([IDL.Text], [Result_48], ['query']),
+    'getContractor' : IDL.Func([IDL.Text, IDL.Text], [Result_47], ['query']),
+    'getContractorStats' : IDL.Func([IDL.Text], [Result_46], ['query']),
+    'getDepartments' : IDL.Func([IDL.Text], [Result_36], ['query']),
+    'getDeptOHSEScores' : IDL.Func([IDL.Text], [Result_45], ['query']),
+    'getDeptRiskBreakdown' : IDL.Func([IDL.Text], [Result_44], ['query']),
+    'getEmployee' : IDL.Func([IDL.Text, IDL.Text], [Result_43], ['query']),
+    'getEsgData' : IDL.Func([IDL.Text], [Result_42], ['query']),
     'getEsgStats' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat), IDL.Opt(IDL.Text)],
-        [Result_39],
+        [Result_41],
         ['query'],
       ),
-    'getHIRA' : IDL.Func([IDL.Text, IDL.Text], [Result_38], ['query']),
+    'getHIRA' : IDL.Func([IDL.Text, IDL.Text], [Result_40], ['query']),
     'getIncident' : IDL.Func([IDL.Text, IDL.Text], [Result_4], ['query']),
-    'getIncidentTrend' : IDL.Func([IDL.Text, IDL.Nat], [Result_37], ['query']),
-    'getJSA' : IDL.Func([IDL.Text, IDL.Text], [Result_36], ['query']),
+    'getIncidentTrend' : IDL.Func([IDL.Text, IDL.Nat], [Result_39], ['query']),
+    'getJSA' : IDL.Func([IDL.Text, IDL.Text], [Result_38], ['query']),
     'getKPISummary' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text)],
-        [Result_35],
+        [Result_37],
         ['query'],
       ),
-    'getLoto' : IDL.Func([IDL.Text, IDL.Text], [Result_34], ['query']),
-    'getLotoStats' : IDL.Func([IDL.Text], [Result_33], ['query']),
-    'getNotifications' : IDL.Func([IDL.Text], [Result_32], ['query']),
-    'getObservation' : IDL.Func([IDL.Text, IDL.Text], [Result_31], ['query']),
-    'getPTW' : IDL.Func([IDL.Text, IDL.Text], [Result_30], ['query']),
+    'getLocations' : IDL.Func([IDL.Text], [Result_36], ['query']),
+    'getLoto' : IDL.Func([IDL.Text, IDL.Text], [Result_35], ['query']),
+    'getLotoStats' : IDL.Func([IDL.Text], [Result_34], ['query']),
+    'getNotifications' : IDL.Func([IDL.Text], [Result_33], ['query']),
+    'getObservation' : IDL.Func([IDL.Text, IDL.Text], [Result_32], ['query']),
+    'getPTW' : IDL.Func([IDL.Text, IDL.Text], [Result_31], ['query']),
+    'getPTWMasterData' : IDL.Func([IDL.Text], [Result_30], ['query']),
     'getPpeStats' : IDL.Func([IDL.Text], [Result_29], ['query']),
     'getPtwDashboardStats' : IDL.Func([IDL.Text], [Result_28], ['query']),
     'getPtwExtension' : IDL.Func([IDL.Text, IDL.Text], [Result_27], ['query']),
@@ -2805,6 +3062,11 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
+    'recordEnergisation' : IDL.Func(
+        [IDL.Text, IDL.Text, EnergisationRecord],
+        [Result_1],
+        [],
+      ),
     'recordInduction' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
         [Result_5],
@@ -2825,6 +3087,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_1],
         [],
       ),
+    'rejectPTW' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
     'reportIncident' : IDL.Func(
         [IDL.Text, CreateIncidentInput],
         [Result_4],
@@ -2859,7 +3122,8 @@ export const idlFactory = ({ IDL }) => {
       ),
     'submitHIRAForApproval' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
     'submitJSAForApproval' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
-    'submitPTW' : IDL.Func([IDL.Text, IDL.Text], [Result_1], []),
+    'submitPTW' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [Result_1], []),
+    'suspendPTW' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Result_1], []),
     'unreadNotifCount' : IDL.Func([IDL.Text], [Result_2], ['query']),
     'updateCapa2Progress' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],

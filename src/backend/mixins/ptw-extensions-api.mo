@@ -24,8 +24,8 @@ mixin (
     var nextNotifId  : Nat;
     var systemAdminNotifyEmail : Text;
   },
-  // ── phase-1 PTW state (read access to update endDateTime, requestedById) ──
-  ptws          : Map.Map<Text, IT.PTW>,
+  // ── phase-1 PTW state (read access for extension operations) ──
+  ptws          : Map.Map<Text, IT.PermitToWork>,
   // ── domain state ────────────────────────────────────────────
   ptwExtensions : Map.Map<Text, T2.PTWExtension>,
 ) {
@@ -132,7 +132,7 @@ mixin (
           u.role == #SafetyOfficer or u.role == #SystemAdmin or
           (switch (ptws.get(permitNumber)) {
             case (null) false;
-            case (?p)   p.requestedById == u.employeeId;
+            case (?p)   p.createdBy == u.employeeId;
           });
         if (not permitted) return #err("Access denied");
         let isNew = switch (ptwExtensions.get(permitNumber)) { case (null) true; case (_) false };
@@ -296,7 +296,7 @@ mixin (
                 };
                 ptwExtensions.add(permitNumber, updCan);
                 // Notify requester
-                extPushNotif(ptw.requestedById,
+                extPushNotif(ptw.createdBy,
                   "PTW " # permitNumber # " has been CANCELLED by " # u.fullName # ": " # reason,
                   "/ptw/" # permitNumber);
                 extAddAudit(u.employeeId, u.fullName, u.role, "PTW", #Updated, permitNumber,
@@ -340,12 +340,13 @@ mixin (
           typeMap.add(typeKey, prev + 1);
 
           // Cycle time for closed permits
-          switch (ptw.closedAt) {
-            case (null) {};
-            case (?closed) {
-              let diffDays : Float = ((closed - ptw.createdAt).toFloat()) / NS_PER_DAY.toFloat();
-              totalCycleDays += if (diffDays < 0.0) 0.0 else diffDays;
-              closedCount += 1;
+          switch (ptw.updatedAt) {
+            case (_closed) {
+              if (ptw.status == #Closed) {
+                let diffDays : Float = (_closed - ptw.createdAt).toFloat() / NS_PER_DAY.toFloat();
+                totalCycleDays += if (diffDays < 0.0) 0.0 else diffDays;
+                closedCount += 1;
+              };
             };
           };
         };

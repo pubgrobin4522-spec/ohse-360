@@ -181,10 +181,7 @@ mixin (
           case (#err(e)) { return #err(e) };
           case (#ok(_)) {};
         };
-        let mustChange = switch (input.role) {
-          case (#SystemAdmin) false;
-          case (_) true;
-        };
+        // No forced password change — the System Admin's entered password is permanent
         let u = Lib.newUser(
           input.employeeId,
           input.fullName,
@@ -193,24 +190,36 @@ mixin (
           input.designation,
           input.role,
           Lib.hashPassword(input.password),
-          mustChange,
+          false, // mustChangePassword = false for all users
         );
         users.add(input.employeeId, u);
         addAudit(admin.employeeId, admin.fullName, admin.role, "UserManagement", #Created, input.employeeId.toText(), "User " # input.fullName # " created");
-        // Notify admin
         pushNotif(admin.employeeId, "New user created: " # input.fullName, "/users");
-        // Email admin
+        // Welcome email sent to System Admin's registered email with plain-text credentials
+        let roleLabel = switch (input.role) {
+          case (#SystemAdmin)    "System Admin";
+          case (#Employee)       "Employee";
+          case (#SafetyOfficer)  "Safety Officer";
+          case (#HOD)            "Head of Department";
+          case (#AreaInCharge)   "Area In Charge";
+          case (#ContractorAdmin) "Contractor Admin";
+        };
+        let welcomeSubject = "New User Account Created — OHSE 360";
+        let welcomeBody =
+          "<p>A new user account has been created in OHSE 360.</p>" #
+          "<p><b>Full Name:</b> " # input.fullName # "</p>" #
+          "<p><b>Username (Employee ID):</b> " # input.employeeId.toText() # "</p>" #
+          "<p><b>Password:</b> " # input.password # "</p>" #
+          "<p><b>Role:</b> " # roleLabel # "</p>" #
+          "<p><b>App Login Link:</b> <a href=\"https://ohse360.app/login\">https://ohse360.app/login</a></p>" #
+          "<p>Please share these credentials with the employee offline.</p>";
         ignore EmailClient.sendServiceEmail(
           "no-reply",
           [state.adminEmail],
-          "OHSE 360: New user created",
-          "<p>New user <b>" # input.fullName # "</b> (ID: " # input.employeeId.toText() # ") has been created.</p>",
+          welcomeSubject,
+          welcomeBody,
         );
-        ignore ccAdminNotify(
-          state.adminEmail,
-          "OHSE 360: New user created",
-          "<p>New user <b>" # input.fullName # "</b> (ID: " # input.employeeId.toText() # ") has been created.</p>",
-        );
+        ignore ccAdminNotify(state.adminEmail, welcomeSubject, welcomeBody);
         #ok(Lib.toUserView(u));
       };
     };
@@ -234,7 +243,7 @@ mixin (
           case (null) { #err("User not found") };
           case (?u) {
             u.passwordHash := Lib.hashPassword(newPassword);
-            u.mustChangePassword := true;
+            u.mustChangePassword := false;
             addAudit(admin.employeeId, admin.fullName, admin.role, "UserManagement", #PasswordReset, targetEmployeeId.toText(), "Password reset for " # u.fullName);
             pushNotif(admin.employeeId, "Password reset for: " # u.fullName, "/users");
             ignore EmailClient.sendServiceEmail(

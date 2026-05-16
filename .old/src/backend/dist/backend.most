@@ -1,4 +1,4 @@
-// Version: 1.0.0
+// Version: 3.0.0
 type AirEmissionEntry__17349220 =
   {
     createdAt : Timestamp__301639476;
@@ -14,14 +14,15 @@ type AirEmissionEntry__17349220 =
   };
 type AirEmissionSource__1048452974 = {#Fugitive; #Stack; #Vehicle};
 type AirPollutant__972967630 = {#CO2; #NOx; #PM10; #SOx; #VOC};
-type ApprovalStep__440768354 =
+type ApprovalSignature__212688113 =
   {
-    var actionAt : ?Timestamp__301639476;
-    var approved : ?Bool;
-    approverId : EmployeeId__291433800;
-    approverName : Text;
-    var remarks : Text;
-    role : Role__300349085
+    approvalStatus : Text;
+    designation : Text;
+    employeeId : EmployeeId__291433800;
+    ipAddress : Text;
+    name : Text;
+    remarks : Text;
+    signedAt : ?Timestamp__301639476
   };
 type AttendanceStatus__75405455 = {#Absent; #Present};
 type AuditAction__969997816 =
@@ -186,6 +187,16 @@ type Employee__759338582 =
     var site : Text
   };
 type EmploymentType__960931619 = {#Contract; #FullTime; #Temporary};
+type EnergisationRecord__1000469071 =
+  {
+    approvedAt : ?Timestamp__301639476;
+    approverEmployeeId : EmployeeId__291433800;
+    approverName : Text;
+    checklistItems : [(Text, Bool)];
+    energisationType : Text;
+    lotoLockNumber : Text;
+    signature : Text
+  };
 type EnergyEntry__969696567 =
   {
     carbonEquivalent : Float;
@@ -283,10 +294,32 @@ type Incident__965616406 =
     var status : IncidentStatus__473412131
   };
 type InductionStatus__1061871428 = {#Fail; #Pass; #Pending};
+type InsuranceInfo__36625735 =
+  {
+    documentUrls : [Text];
+    insuranceType : InsuranceType__684586269;
+    policyNumber : Text;
+    validFrom : Text;
+    validTill : Text;
+    verificationStatus : Text
+  };
+type InsuranceType__684586269 =
+  {#ESI; #EmployeeCompensation; #GroupAccident; #WorkerCompensation};
 type Int__270357528 = Int__616954475;
 type Int__616954475 = Int;
 type Internal__8484328<K, V> =
   {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type IsolationDetail__1065265429 =
+  {
+    description : Text;
+    electricalOptions : [Text];
+    isolationBy : EmployeeId__291433800;
+    isolationDateTime : ?Timestamp__301639476;
+    isolationRequired : Bool;
+    lotoLockNumber : Text;
+    serviceOptions : [Text];
+    verificationStatus : Text
+  };
 type IsolationPointMut__448462982 =
   {
     location : Text;
@@ -359,6 +392,13 @@ type LOTO__688530994 =
     workDescription : Text
   };
 type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type List__415060402<T> = List__790383201<T>;
+type List__790383201<T> =
+  {
+    var blockIndex : Nat__490723111;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__490723111
+  };
 type LockEntryStatus__839298218 = {#Applied; #Removed};
 type LockEntry__212676603 =
   {
@@ -366,6 +406,10 @@ type LockEntry__212676603 =
     lockNumber : Text;
     var status : LockEntryStatus__839298218
   };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
 type Nat__490723111 = Nat__920180692;
 type Nat__920180692 = Nat;
 type Node__46230540<K, V> =
@@ -404,6 +448,66 @@ type Observation__358192529 =
     photoUrl : ?Text;
     severity : ObservationSeverity__437863864;
     var status : ObservationStatus__615063181
+  };
+type OldApprovalStep__815007846 =
+  {
+    var actionAt : ?Timestamp__301639476;
+    var approved : ?Bool;
+    approverId : EmployeeId__291433800;
+    approverName : Text;
+    var remarks : Text;
+    role : OldRole__987685965
+  };
+type OldPTWStatus__451562906 =
+  {
+    #Active;
+    #Closed;
+    #Completed;
+    #Draft;
+    #PendingAreaInCharge;
+    #PendingHOD;
+    #PendingSafetyOfficer;
+    #Rejected
+  };
+type OldPTW__1041105171 =
+  {
+    var aicStep : ?OldApprovalStep__815007846;
+    var closedAt : ?Timestamp__301639476;
+    contractorTeam : Text;
+    createdAt : Timestamp__301639476;
+    endDateTime : Text;
+    var hodStep : ?OldApprovalStep__815007846;
+    location : Text;
+    permitNumber : Text;
+    permitType : OldPermitType__646791147;
+    ppeRequired : [Text];
+    var rejectedAt : ?Timestamp__301639476;
+    var rejectedRemarks : Text;
+    requestedById : EmployeeId__291433800;
+    requestedByName : Text;
+    riskAssessed : Bool;
+    var soStep : ?OldApprovalStep__815007846;
+    startDateTime : Text;
+    var status : OldPTWStatus__451562906;
+    workDescription : Text
+  };
+type OldPermitType__646791147 =
+  {
+    #ColdWork;
+    #ConfinedSpace;
+    #ElectricalIsolation;
+    #Excavation;
+    #HotWork;
+    #WorkAtHeight
+  };
+type OldRole__987685965 =
+  {
+    #AreaInCharge;
+    #ContractorAdmin;
+    #Employee;
+    #HOD;
+    #SafetyOfficer;
+    #SystemAdmin
   };
 type PPEConditionIssue__183572578 = {#New; #Reissued};
 type PPEInspectionCondition__802271416 = {#Damaged; #Good; #Replace};
@@ -470,35 +574,18 @@ type PTWExtension__310529801 =
 type PTWStatus__154172934 =
   {
     #Active;
+    #Approved;
+    #AreaReview;
     #Closed;
-    #Completed;
     #Draft;
-    #PendingAreaInCharge;
-    #PendingHOD;
-    #PendingSafetyOfficer;
-    #Rejected
-  };
-type PTW__1007887239 =
-  {
-    var aicStep : ?ApprovalStep__440768354;
-    var closedAt : ?Timestamp__301639476;
-    contractorTeam : Text;
-    createdAt : Timestamp__301639476;
-    endDateTime : Text;
-    var hodStep : ?ApprovalStep__440768354;
-    location : Text;
-    permitNumber : Text;
-    permitType : PermitType__46026764;
-    ppeRequired : [Text];
-    var rejectedAt : ?Timestamp__301639476;
-    var rejectedRemarks : Text;
-    requestedById : EmployeeId__291433800;
-    requestedByName : Text;
-    riskAssessed : Bool;
-    var soStep : ?ApprovalStep__440768354;
-    startDateTime : Text;
-    var status : PTWStatus__154172934;
-    workDescription : Text
+    #Expired;
+    #FinalApproval;
+    #HODReview;
+    #IsolationReview;
+    #Rejected;
+    #SafetyReview;
+    #Submitted;
+    #Suspended
   };
 type PerformanceRating__786596126 = {#Excellent; #Fair; #Good; #Poor};
 type PermitExtension__645967101 =
@@ -509,15 +596,73 @@ type PermitExtension__645967101 =
     originalEndTime : Timestamp__301639476;
     reason : Text
   };
+type PermitToWork__208807121 =
+  {
+    area : Text;
+    var areaInChargeSignature : ?ApprovalSignature__212688113;
+    checklist : [(Text, Bool)];
+    var coPpm : ?Float;
+    contractorName : Text;
+    createdAt : Timestamp__301639476;
+    createdBy : EmployeeId__291433800;
+    crossReference : Text;
+    customHazard : Text;
+    department : Text;
+    var electricalApproverSignature : ?ApprovalSignature__212688113;
+    var electricalEnergisation : ?EnergisationRecord__1000469071;
+    var emergencyRescueDescription : Text;
+    var emergencyRescuePlan : Bool;
+    var finalIssuerSignature : ?ApprovalSignature__212688113;
+    var h2sPpm : ?Float;
+    var hodSignature : ?ApprovalSignature__212688113;
+    id : Text;
+    insurance : ?InsuranceInfo__36625735;
+    isolation : ?IsolationDetail__1065265429;
+    var isolationAuthoritySignature : ?ApprovalSignature__212688113;
+    issuedTo : Text;
+    issuingDepartment : Text;
+    jobDescription : Text;
+    jobLocation : Text;
+    var lelPercent : ?Float;
+    var linkedHiraNumber : ?Text;
+    var linkedJsaNumber : ?Text;
+    var nominatedAreaInChargeEmployeeId : ?EmployeeId__291433800;
+    var nominatedFinalIssuerEmployeeId : ?EmployeeId__291433800;
+    var nominatedHodEmployeeId : ?EmployeeId__291433800;
+    var nominatedIsolationAuthorityEmployeeId : ?EmployeeId__291433800;
+    var nominatedSafetyOfficerEmployeeId : ?EmployeeId__291433800;
+    var o2Percent : ?Float;
+    permitType : PermitType__46026764;
+    var requestorSignature : ?ApprovalSignature__212688113;
+    riskLevel : RiskLevel__823307684;
+    var safetyOfficerSignature : ?ApprovalSignature__212688113;
+    selectedHazards : [Text];
+    selectedPPE : [Text];
+    var serviceProcessApproverSignature : ?ApprovalSignature__212688113;
+    var serviceProcessEnergisation : ?EnergisationRecord__1000469071;
+    var status : PTWStatus__154172934;
+    supervisorName : Text;
+    timeEnd : Text;
+    timeStart : Text;
+    var toolboxTalkAttendees : [Text];
+    var toolboxTalkDone : Bool;
+    var updatedAt : Timestamp__301639476;
+    validityDate : Text
+  };
 type PermitType__46026764 =
   {
+    #ChemicalHandling;
     #ColdWork;
     #ConfinedSpace;
-    #ElectricalIsolation;
+    #ElectricalWork;
     #Excavation;
+    #GeneralWork;
+    #HeightWork;
     #HotWork;
-    #WorkAtHeight
+    #Lifting;
+    #Shutdown
   };
+type RiskLevel__823307684 = {#Critical; #High; #Low; #Medium};
 type RiskLevel__937780536 = {#Critical; #High; #Low; #Medium};
 type RiskScoreEntry__981538386 =
   {
@@ -622,7 +767,71 @@ type WaterEntry__625491902 =
     year : Nat
   };
 type WaterSource__312548329 = {#Groundwater; #Municipal; #Recycled};
-actor {
+actor ({
+  stable NS_PER_YEAR : Int;
+  stable PROTECTED_ID : Nat;
+  in airEmissions : List__415060402<AirEmissionEntry__17349220>;
+  in apl_state :
+    {
+      var inspectionSequence : Nat;
+      var issuanceSequence : Nat;
+      var lotoSequence : Nat;
+      var ppeSequence : Nat;
+      var riskScoreSeq : Nat
+    };
+  in auditLog : List__415060402<AuditEntry__381540928>;
+  in capa2_state : {var nextCapa2Seq : Nat};
+  in capa2s : List__415060402<CAPA2__716757223>;
+  in capas : List__415060402<CAPA__931431673>;
+  in carbonEntries : List__415060402<CarbonEntry__714739521>;
+  in con_state :
+    {var contractorSequence : Nat; var inductionCertSequence : Nat};
+  in contractors : Map__605269027<Text, Contractor__198317164>;
+  stable departmentList : [Text];
+  in effluentEntries : List__415060402<EffluentEntry__263753610>;
+  in employees : Map__605269027<Text, Employee__759338582>;
+  in energyEntries : List__415060402<EnergyEntry__969696567>;
+  in hiras : List__415060402<HIRA__201726955>;
+  in incidents : Map__605269027<Text, Incident__965616406>;
+  in itp_state :
+    {
+      var auditScore : Nat;
+      var manHours : Nat;
+      var nextCAPAId : Nat;
+      var nextCertSeq : Nat;
+      var nextIncSeq : Nat;
+      var nextPtwSeq : Nat;
+      var nextTrnSeq : Nat
+    };
+  in jsas : List__415060402<JSA__701394482>;
+  stable locationList : [Text];
+  in lotos : Map__605269027<Text, LOTO__688530994>;
+  in notifications : List__415060402<Notification__587267833>;
+  in observations : List__415060402<Observation__358192529>;
+  in ohj_state :
+    {var nextHiraSeq : Nat; var nextJsaSeq : Nat; var nextObsSeq : Nat};
+  in ppeInspections : List__415060402<PPEInspection__380099318>;
+  in ppeInventory : Map__605269027<Text, PPEInventory__438978944>;
+  in ppeIssuances : List__415060402<PPEIssuance__274310621>;
+  in ppeItems : Map__605269027<Text, PPEItem__447243446>;
+  in ptwExtensions : Map__605269027<Text, PTWExtension__310529801>;
+  stable ptw_state : {var ptwLastMonth : Text; var ptwMonthlyCounter : Nat};
+  in ptws : Map__605269027<Text, OldPTW__1041105171>;
+  in riskScoreHistory : List__415060402<RiskScoreEntry__981538386>;
+  in sessions : Map__605269027<Text, EmployeeId__291433800>;
+  in state :
+    {
+      adminEmail : Text;
+      var nextAuditId : Nat;
+      var nextEmpSeq : Nat;
+      var nextNotifId : Nat;
+      var systemAdminNotifyEmail : Text
+    };
+  in trainings : Map__605269027<Text, Training__733724997>;
+  in users : Map__605269027<EmployeeId__291433800, User__900149266>;
+  in wasteEntries : List__415060402<WasteEntry__475710427>;
+  in waterEntries : List__415060402<WaterEntry__625491902>
+}, {
   stable NS_PER_YEAR : Int;
   stable PROTECTED_ID : Nat;
   stable airEmissions :
@@ -671,6 +880,7 @@ actor {
       var root : Node__46230540<Text, Contractor__198317164>;
       var size : Nat__490723111
     };
+  stable departmentList : [Text];
   stable effluentEntries :
     {
       var blockIndex : Nat__490723111;
@@ -715,6 +925,7 @@ actor {
       var blocks : [var [var ?JSA__701394482]];
       var elementIndex : Nat__490723111
     };
+  stable locationList : [Text];
   stable lotos :
     {
       var root : Node__46230540<Text, LOTO__688530994>;
@@ -761,9 +972,10 @@ actor {
       var root : Node__46230540<Text, PTWExtension__310529801>;
       var size : Nat__490723111
     };
+  stable ptw_state : {var ptwLastMonth : Text; var ptwMonthlyCounter : Nat};
   stable ptws :
     {
-      var root : Node__46230540<Text, PTW__1007887239>;
+      var root : Node__46230540<Text, PermitToWork__208807121>;
       var size : Nat__490723111
     };
   stable riskScoreHistory :
@@ -807,4 +1019,4 @@ actor {
       var blocks : [var [var ?WaterEntry__625491902]];
       var elementIndex : Nat__490723111
     }
-};
+});
