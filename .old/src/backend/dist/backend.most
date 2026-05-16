@@ -1,0 +1,1022 @@
+// Version: 3.0.0
+type AirEmissionEntry__17349220 =
+  {
+    createdAt : Timestamp__301639476;
+    department : Text;
+    isExceeded : Bool;
+    loggedBy : EmployeeId__291433800;
+    measurementDate : Text;
+    pollutant : AirPollutant__972967630;
+    regulatoryLimit : Float;
+    source : AirEmissionSource__1048452974;
+    unit : Text;
+    value : Float
+  };
+type AirEmissionSource__1048452974 = {#Fugitive; #Stack; #Vehicle};
+type AirPollutant__972967630 = {#CO2; #NOx; #PM10; #SOx; #VOC};
+type ApprovalSignature__212688113 =
+  {
+    approvalStatus : Text;
+    designation : Text;
+    employeeId : EmployeeId__291433800;
+    ipAddress : Text;
+    name : Text;
+    remarks : Text;
+    signedAt : ?Timestamp__301639476
+  };
+type AttendanceStatus__75405455 = {#Absent; #Present};
+type AuditAction__969997816 =
+  {
+    #Approved;
+    #Closed_;
+    #Created;
+    #Deactivated;
+    #Login;
+    #Logout;
+    #PasswordChanged;
+    #PasswordReset;
+    #Reactivated;
+    #Rejected_;
+    #Updated
+  };
+type AuditEntry__381540928 =
+  {
+    action : AuditAction__969997816;
+    actorId : EmployeeId__291433800;
+    actorName : Text;
+    actorRole : Role__300349085;
+    detail : Text;
+    id : Nat;
+    module_ : Text;
+    recordRef : Text;
+    timestamp : Timestamp__301639476
+  };
+type CAPA2__716757223 =
+  {
+    var actionDescription : Text;
+    actionOwnerEmpId : EmployeeId__291433800;
+    capaNumber : Text;
+    capaType : CAPAType__758698446;
+    var completionEvidence : ?Text;
+    createdAt : Timestamp__301639476;
+    department : Text;
+    findingDescription : Text;
+    var isOverdue : Bool;
+    linkedRecordNumber : Text;
+    priority : CAPAPriority__502197740;
+    var progressUpdate : Text;
+    rootCauseCat : RootCauseCat__220807413;
+    var rootCauseDesc : Text;
+    source : CAPASource2__996709792;
+    var status : CAPAStatus2__417020080;
+    targetDate : Text;
+    var updatedAt : Timestamp__301639476;
+    var verifiedAt : ?Timestamp__301639476;
+    var verifiedByEmpId : ?EmployeeId__291433800
+  };
+type CAPAPriority__502197740 = {#Critical; #High; #Low; #Medium};
+type CAPASource2__996709792 =
+  {#Audit; #HIRA; #Incident; #JSA; #Manual; #Observation};
+type CAPAStatus2__417020080 =
+  {#Closed; #InProgress; #Open; #Overdue; #PendingVerification};
+type CAPAStatus__487441170 = {#Closed; #InProgress; #Open; #Overdue};
+type CAPAType__758698446 = {#Corrective; #Preventive};
+type CAPA__931431673 =
+  {
+    actionOwnerId : EmployeeId__291433800;
+    actionOwnerName : Text;
+    var closedAt : ?Timestamp__301639476;
+    createdAt : Timestamp__301639476;
+    deadline : Text;
+    var description : Text;
+    id : Nat;
+    incidentNumber : Text;
+    var status : CAPAStatus__487441170
+  };
+type CarbonEntry__714739521 =
+  {
+    co2eTonnes : Float;
+    createdAt : Timestamp__301639476;
+    description : Text;
+    loggedBy : EmployeeId__291433800;
+    month : Nat;
+    scope : CarbonScope__948704879;
+    year : Nat
+  };
+type CarbonScope__948704879 = {#Scope1; #Scope2; #Scope3};
+type CertificateStatus__494622708 = {#Expired; #ExpiringSoon; #Valid};
+type ContractorDocStatus__593395721 = {#Expired; #Expiring; #Valid};
+type ContractorDoc__50203841 =
+  {
+    docType : Text;
+    expiryDate : Text;
+    var status : ContractorDocStatus__593395721;
+    uploadedAt : Timestamp__301639476
+  };
+type ContractorEmployee__688205639 =
+  {
+    certificateNumber : ?Text;
+    empName : Text;
+    idNumber : Text;
+    inductionDate : ?Text;
+    inductionStatus : InductionStatus__1061871428;
+    trade : Text
+  };
+type ContractorPerformance__328596944 =
+  {
+    evaluatedAt : Timestamp__301639476;
+    evaluatedBy : EmployeeId__291433800;
+    incidentCount : Nat;
+    nearMissCount : Nat;
+    overallRating : PerformanceRating__786596126;
+    ptwCompliance : Float;
+    safetyScore : Nat;
+    trainingCompliance : Float
+  };
+type ContractorStatus__1048081623 = {#Active; #Blacklisted; #Expired};
+type Contractor__198317164 =
+  {
+    companyName : Text;
+    contactPerson : Text;
+    contractEndDate : Text;
+    contractStartDate : Text;
+    contractorId : Text;
+    createdAt : Timestamp__301639476;
+    var documents : [var ContractorDoc__50203841];
+    email : Text;
+    var employees : [var ContractorEmployee__688205639];
+    var linkedPtwNumbers : [var Text];
+    var performance : ?ContractorPerformance__328596944;
+    phone : Text;
+    registrationNumber : Text;
+    var status : ContractorStatus__1048081623;
+    typeOfWork : Text;
+    var updatedAt : Timestamp__301639476
+  };
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type EffluentEntry__263753610 =
+  {
+    createdAt : Timestamp__301639476;
+    department : Text;
+    effluentType : EffluentType__449484164;
+    isCompliant : Bool;
+    loggedBy : EmployeeId__291433800;
+    parameter : EffluentParameter__820600939;
+    regulatoryLimit : Float;
+    samplingDate : Text;
+    value : Float
+  };
+type EffluentParameter__820600939 = {#BOD; #COD; #HeavyMetals; #PH; #TSS};
+type EffluentType__449484164 = {#Domestic; #Process; #Stormwater};
+type EmployeeId__291433800 = Nat;
+type EmployeeStatus__535589048 = {#Active; #Inactive; #Resigned};
+type Employee__759338582 =
+  {
+    var contact : Text;
+    createdAt : Timestamp__301639476;
+    var dateOfBirth : Text;
+    var department : Text;
+    var designation : Text;
+    var email : Text;
+    empCode : Text;
+    var empStatus : EmployeeStatus__535589048;
+    var employmentType : EmploymentType__960931619;
+    var fullName : Text;
+    var joiningDate : Text;
+    var site : Text
+  };
+type EmploymentType__960931619 = {#Contract; #FullTime; #Temporary};
+type EnergisationRecord__1000469071 =
+  {
+    approvedAt : ?Timestamp__301639476;
+    approverEmployeeId : EmployeeId__291433800;
+    approverName : Text;
+    checklistItems : [(Text, Bool)];
+    energisationType : Text;
+    lotoLockNumber : Text;
+    signature : Text
+  };
+type EnergyEntry__969696567 =
+  {
+    carbonEquivalent : Float;
+    consumption : Float;
+    createdAt : Timestamp__301639476;
+    department : Text;
+    energyType : EnergyType__38310788;
+    loggedBy : EmployeeId__291433800;
+    month : Nat;
+    target : Float;
+    unit : Text;
+    year : Nat
+  };
+type EnergySourceLOTO__281074418 =
+  {
+    #Chemical;
+    #Electrical;
+    #Gravitational;
+    #Hydraulic;
+    #Mechanical;
+    #Pneumatic;
+    #Thermal
+  };
+type EnergyType__38310788 = {#Diesel; #Electricity; #Gas; #LPG; #Renewable};
+type HIRAStatus__780869184 = {#Approved; #Draft; #Expired; #UnderReview};
+type HIRA__201726955 =
+  {
+    var aicAt : ?Timestamp__301639476;
+    var aicEmpId : ?EmployeeId__291433800;
+    var aicRemarks : ?Text;
+    var approvalStep : Nat;
+    area : Text;
+    createdAt : Timestamp__301639476;
+    createdBy : EmployeeId__291433800;
+    department : Text;
+    var hazards : [var HazardRow__694489932];
+    hiraNumber : Text;
+    var hodAt : ?Timestamp__301639476;
+    var hodEmpId : ?EmployeeId__291433800;
+    var hodRemarks : ?Text;
+    var linkedPtwNumber : ?Text;
+    location : Text;
+    responsibleEmpId : ?EmployeeId__291433800;
+    reviewDate : Text;
+    var soAt : ?Timestamp__301639476;
+    var soEmpId : ?EmployeeId__291433800;
+    var soRemarks : ?Text;
+    var status : HIRAStatus__780869184;
+    taskDescription : Text;
+    var updatedAt : Timestamp__301639476
+  };
+type HazardRow__694489932 =
+  {
+    additionalControls : Text;
+    existingControls : Text;
+    hazardDescription : Text;
+    hazardId : Text;
+    hazardType : HazardType__975882624;
+    likelihood : Nat;
+    residualRiskScore : Nat;
+    responsibleEmpId : ?EmployeeId__291433800;
+    riskLevel : RiskLevel__937780536;
+    riskScore : Nat;
+    severity : Nat
+  };
+type HazardType__975882624 =
+  {
+    #Biological;
+    #Chemical;
+    #Environmental;
+    #Ergonomic;
+    #Physical;
+    #Psychological
+  };
+type IncidentStatus__473412131 =
+  {#CAPAPending; #Closed; #Open; #UnderInvestigation};
+type IncidentType__604983177 =
+  {#Fatal; #FirstAid; #LTI; #NearMiss; #UnsafeAct; #UnsafeCondition};
+type Incident__965616406 =
+  {
+    var closedAt : ?Timestamp__301639476;
+    var correctiveAction : Text;
+    createdAt : Timestamp__301639476;
+    department : Text;
+    description : Text;
+    incidentDate : Text;
+    incidentNumber : Text;
+    incidentType : IncidentType__604983177;
+    injuredPersonCode : ?Text;
+    location : Text;
+    reportedById : EmployeeId__291433800;
+    reportedByName : Text;
+    var rootCause : Text;
+    var severity : Severity__779799841;
+    var status : IncidentStatus__473412131
+  };
+type InductionStatus__1061871428 = {#Fail; #Pass; #Pending};
+type InsuranceInfo__36625735 =
+  {
+    documentUrls : [Text];
+    insuranceType : InsuranceType__684586269;
+    policyNumber : Text;
+    validFrom : Text;
+    validTill : Text;
+    verificationStatus : Text
+  };
+type InsuranceType__684586269 =
+  {#ESI; #EmployeeCompensation; #GroupAccident; #WorkerCompensation};
+type Int__270357528 = Int__616954475;
+type Int__616954475 = Int;
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type IsolationDetail__1065265429 =
+  {
+    description : Text;
+    electricalOptions : [Text];
+    isolationBy : EmployeeId__291433800;
+    isolationDateTime : ?Timestamp__301639476;
+    isolationRequired : Bool;
+    lotoLockNumber : Text;
+    serviceOptions : [Text];
+    verificationStatus : Text
+  };
+type IsolationPointMut__448462982 =
+  {
+    location : Text;
+    lockNumber : Text;
+    pointId : Text;
+    var status : IsolationPointStatus__102285528
+  };
+type IsolationPointStatus__102285528 = {#Applied; #Removed};
+type JSAStatus__1012557431 =
+  {#Active; #Approved; #Closed; #Draft; #UnderReview};
+type JSAStep__621603167 =
+  {
+    controls : Text;
+    description : Text;
+    hazards : Text;
+    responsibleEmpId : ?EmployeeId__291433800;
+    riskLevel : RiskLevel__937780536;
+    stepNo : Nat
+  };
+type JSA__701394482 =
+  {
+    analysisDate : Text;
+    var approvedBy : ?EmployeeId__291433800;
+    area : Text;
+    var briefingAttendees : [var EmployeeId__291433800];
+    createdAt : Timestamp__301639476;
+    department : Text;
+    emergencyContacts : Text;
+    faceShield : Bool;
+    gloves : Bool;
+    goggles : Bool;
+    harness : Bool;
+    helmetRequired : Bool;
+    var hodAt : ?Timestamp__301639476;
+    var hodRemarks : ?Text;
+    jobTitle : Text;
+    jsaNumber : Text;
+    var linkedPtwNumber : ?Text;
+    location : Text;
+    preparedBy : EmployeeId__291433800;
+    respirator : Bool;
+    var reviewedBy : ?EmployeeId__291433800;
+    safetyShoes : Bool;
+    var soAt : ?Timestamp__301639476;
+    var soRemarks : ?Text;
+    var status : JSAStatus__1012557431;
+    var steps : [var JSAStep__621603167];
+    var updatedAt : Timestamp__301639476
+  };
+type LOTOStatus__693336788 = {#Active; #Cancelled; #Completed; #Draft};
+type LOTO__688530994 =
+  {
+    var authorizedAt : ?Timestamp__301639476;
+    var authorizedByEmpId : ?EmployeeId__291433800;
+    var authorizedEmpIds : [var EmployeeId__291433800];
+    createdAt : Timestamp__301639476;
+    createdBy : EmployeeId__291433800;
+    var endDateTime : ?Timestamp__301639476;
+    var energySources : [var EnergySourceLOTO__281074418];
+    equipmentName : Text;
+    var isolationPoints : [var IsolationPointMut__448462982];
+    var lockRegister : [var LockEntry__212676603];
+    lotoNumber : Text;
+    var procedureSteps : [var Text];
+    var reEnergizationChecklist : [var Text];
+    startDateTime : Timestamp__301639476;
+    var status : LOTOStatus__693336788;
+    tagNumber : Text;
+    var updatedAt : Timestamp__301639476;
+    workDescription : Text
+  };
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type List__415060402<T> = List__790383201<T>;
+type List__790383201<T> =
+  {
+    var blockIndex : Nat__490723111;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__490723111
+  };
+type LockEntryStatus__839298218 = {#Applied; #Removed};
+type LockEntry__212676603 =
+  {
+    assignedEmpId : EmployeeId__291433800;
+    lockNumber : Text;
+    var status : LockEntryStatus__839298218
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type Notification__587267833 =
+  {
+    createdAt : Timestamp__301639476;
+    id : Nat;
+    var isRead : Bool;
+    link : Text;
+    message : Text;
+    recipientId : EmployeeId__291433800
+  };
+type ObservationSeverity__437863864 = {#High; #Low; #Medium};
+type ObservationStatus__615063181 =
+  {#CAPAPending; #Closed; #Open; #UnderReview};
+type ObservationType__301818598 =
+  {#NearMiss; #PositiveReinforcement; #SafeAct; #UnsafeAct; #UnsafeCondition};
+type Observation__358192529 =
+  {
+    var acknowledgeRemarks : ?Text;
+    var acknowledgedAt : ?Timestamp__301639476;
+    var acknowledgedBy : ?EmployeeId__291433800;
+    area : Text;
+    createdAt : Timestamp__301639476;
+    dateTime : Timestamp__301639476;
+    department : Text;
+    description : Text;
+    immediateAction : Text;
+    var linkedCapaId : ?Text;
+    location : Text;
+    obsNumber : Text;
+    obsType : ObservationType__301818598;
+    observerEmpId : EmployeeId__291433800;
+    observerName : Text;
+    photoUrl : ?Text;
+    severity : ObservationSeverity__437863864;
+    var status : ObservationStatus__615063181
+  };
+type OldApprovalStep__815007846 =
+  {
+    var actionAt : ?Timestamp__301639476;
+    var approved : ?Bool;
+    approverId : EmployeeId__291433800;
+    approverName : Text;
+    var remarks : Text;
+    role : OldRole__987685965
+  };
+type OldPTWStatus__451562906 =
+  {
+    #Active;
+    #Closed;
+    #Completed;
+    #Draft;
+    #PendingAreaInCharge;
+    #PendingHOD;
+    #PendingSafetyOfficer;
+    #Rejected
+  };
+type OldPTW__1041105171 =
+  {
+    var aicStep : ?OldApprovalStep__815007846;
+    var closedAt : ?Timestamp__301639476;
+    contractorTeam : Text;
+    createdAt : Timestamp__301639476;
+    endDateTime : Text;
+    var hodStep : ?OldApprovalStep__815007846;
+    location : Text;
+    permitNumber : Text;
+    permitType : OldPermitType__646791147;
+    ppeRequired : [Text];
+    var rejectedAt : ?Timestamp__301639476;
+    var rejectedRemarks : Text;
+    requestedById : EmployeeId__291433800;
+    requestedByName : Text;
+    riskAssessed : Bool;
+    var soStep : ?OldApprovalStep__815007846;
+    startDateTime : Text;
+    var status : OldPTWStatus__451562906;
+    workDescription : Text
+  };
+type OldPermitType__646791147 =
+  {
+    #ColdWork;
+    #ConfinedSpace;
+    #ElectricalIsolation;
+    #Excavation;
+    #HotWork;
+    #WorkAtHeight
+  };
+type OldRole__987685965 =
+  {
+    #AreaInCharge;
+    #ContractorAdmin;
+    #Employee;
+    #HOD;
+    #SafetyOfficer;
+    #SystemAdmin
+  };
+type PPEConditionIssue__183572578 = {#New; #Reissued};
+type PPEInspectionCondition__802271416 = {#Damaged; #Good; #Replace};
+type PPEInspection__380099318 =
+  {
+    condition : PPEInspectionCondition__802271416;
+    createdAt : Timestamp__301639476;
+    inspectionDate : Text;
+    inspectionId : Text;
+    inspectorEmpId : EmployeeId__291433800;
+    itemId : Text;
+    remarks : Text
+  };
+type PPEInventory__438978944 =
+  {
+    itemId : Text;
+    var lastUpdated : Timestamp__301639476;
+    minStockLevel : Nat;
+    var quantityInStock : Int
+  };
+type PPEIssuance__274310621 =
+  {
+    condition : PPEConditionIssue__183572578;
+    createdAt : Timestamp__301639476;
+    employeeId : EmployeeId__291433800;
+    issuanceId : Text;
+    issueDate : Text;
+    itemId : Text;
+    quantity : Nat;
+    size : Text
+  };
+type PPEItem__447243446 =
+  {
+    createdAt : Timestamp__301639476;
+    itemId : Text;
+    itemName : Text;
+    itemType : Text;
+    shelfLifeMonths : Nat;
+    size : Text;
+    standard : Text
+  };
+type PTWExtension__310529801 =
+  {
+    cancellationReason : ?Text;
+    cancelledAt : ?Timestamp__301639476;
+    cancelledBy : ?EmployeeId__291433800;
+    createdAt : Timestamp__301639476;
+    emergencyRescueDesc : ?Text;
+    emergencyRescuePlan : Bool;
+    extensions : [PermitExtension__645967101];
+    gasTestCO : ?Float;
+    gasTestH2S : ?Float;
+    gasTestLEL : ?Float;
+    gasTestO2 : ?Float;
+    gasTestPassed : Bool;
+    isCancelled : Bool;
+    linkedHiraNumber : ?Text;
+    linkedJsaNumber : ?Text;
+    permitNumber : Text;
+    requiresLOTO : Bool;
+    toolboxAttendees : [EmployeeId__291433800];
+    toolboxTalkDone : Bool
+  };
+type PTWStatus__154172934 =
+  {
+    #Active;
+    #Approved;
+    #AreaReview;
+    #Closed;
+    #Draft;
+    #Expired;
+    #FinalApproval;
+    #HODReview;
+    #IsolationReview;
+    #Rejected;
+    #SafetyReview;
+    #Submitted;
+    #Suspended
+  };
+type PerformanceRating__786596126 = {#Excellent; #Fair; #Good; #Poor};
+type PermitExtension__645967101 =
+  {
+    extendedAt : Timestamp__301639476;
+    extendedBy : EmployeeId__291433800;
+    newEndTime : Timestamp__301639476;
+    originalEndTime : Timestamp__301639476;
+    reason : Text
+  };
+type PermitToWork__208807121 =
+  {
+    area : Text;
+    var areaInChargeSignature : ?ApprovalSignature__212688113;
+    checklist : [(Text, Bool)];
+    var coPpm : ?Float;
+    contractorName : Text;
+    createdAt : Timestamp__301639476;
+    createdBy : EmployeeId__291433800;
+    crossReference : Text;
+    customHazard : Text;
+    department : Text;
+    var electricalApproverSignature : ?ApprovalSignature__212688113;
+    var electricalEnergisation : ?EnergisationRecord__1000469071;
+    var emergencyRescueDescription : Text;
+    var emergencyRescuePlan : Bool;
+    var finalIssuerSignature : ?ApprovalSignature__212688113;
+    var h2sPpm : ?Float;
+    var hodSignature : ?ApprovalSignature__212688113;
+    id : Text;
+    insurance : ?InsuranceInfo__36625735;
+    isolation : ?IsolationDetail__1065265429;
+    var isolationAuthoritySignature : ?ApprovalSignature__212688113;
+    issuedTo : Text;
+    issuingDepartment : Text;
+    jobDescription : Text;
+    jobLocation : Text;
+    var lelPercent : ?Float;
+    var linkedHiraNumber : ?Text;
+    var linkedJsaNumber : ?Text;
+    var nominatedAreaInChargeEmployeeId : ?EmployeeId__291433800;
+    var nominatedFinalIssuerEmployeeId : ?EmployeeId__291433800;
+    var nominatedHodEmployeeId : ?EmployeeId__291433800;
+    var nominatedIsolationAuthorityEmployeeId : ?EmployeeId__291433800;
+    var nominatedSafetyOfficerEmployeeId : ?EmployeeId__291433800;
+    var o2Percent : ?Float;
+    permitType : PermitType__46026764;
+    var requestorSignature : ?ApprovalSignature__212688113;
+    riskLevel : RiskLevel__823307684;
+    var safetyOfficerSignature : ?ApprovalSignature__212688113;
+    selectedHazards : [Text];
+    selectedPPE : [Text];
+    var serviceProcessApproverSignature : ?ApprovalSignature__212688113;
+    var serviceProcessEnergisation : ?EnergisationRecord__1000469071;
+    var status : PTWStatus__154172934;
+    supervisorName : Text;
+    timeEnd : Text;
+    timeStart : Text;
+    var toolboxTalkAttendees : [Text];
+    var toolboxTalkDone : Bool;
+    var updatedAt : Timestamp__301639476;
+    validityDate : Text
+  };
+type PermitType__46026764 =
+  {
+    #ChemicalHandling;
+    #ColdWork;
+    #ConfinedSpace;
+    #ElectricalWork;
+    #Excavation;
+    #GeneralWork;
+    #HeightWork;
+    #HotWork;
+    #Lifting;
+    #Shutdown
+  };
+type RiskLevel__823307684 = {#Critical; #High; #Low; #Medium};
+type RiskLevel__937780536 = {#Critical; #High; #Low; #Medium};
+type RiskScoreEntry__981538386 =
+  {
+    calculatedAt : Timestamp__301639476;
+    calculatedBy : Text;
+    var departmentScores : [var (Text, Nat)];
+    nearMissCount : Nat;
+    openHighCriticalIncidents : Nat;
+    overallScore : Nat;
+    overdueCAPACount : Nat;
+    riskLevel : RiskLevel__937780536;
+    trainingGapCount : Nat;
+    unsafeObsCount : Nat
+  };
+type Role__300349085 =
+  {
+    #AreaInCharge;
+    #ContractorAdmin;
+    #Employee;
+    #HOD;
+    #SafetyOfficer;
+    #SystemAdmin
+  };
+type RootCauseCat__220807413 =
+  {
+    #Environmental;
+    #EquipmentFailure;
+    #HumanError;
+    #ManagementSystem;
+    #ProcedureGap;
+    #TrainingGap
+  };
+type Severity__779799841 = {#Critical; #High; #Low; #Medium};
+type Time__796480547 = Int__270357528;
+type Time__900049286 = Time__796480547;
+type Timestamp__301639476 = Time__900049286;
+type TrainingAttendee__172979334 =
+  {
+    var attendance : AttendanceStatus__75405455;
+    var certStatus : ?CertificateStatus__494622708;
+    var certificateId : ?Text;
+    empCode : Text;
+    empName : Text;
+    var expiryDate : ?Text
+  };
+type TrainingFrequency__828558818 =
+  {#Annual; #BiAnnual; #OneTime; #ThreeYearly};
+type TrainingType__938718129 =
+  {#External; #Induction; #OnTheJob; #Refresher; #Regulatory};
+type Training__733724997 =
+  {
+    attendees : [var TrainingAttendee__172979334];
+    createdAt : Timestamp__301639476;
+    createdById : EmployeeId__291433800;
+    department : Text;
+    frequency : TrainingFrequency__828558818;
+    name : Text;
+    trainer : Text;
+    trainingDate : Text;
+    trainingId : Text;
+    trainingType : TrainingType__938718129
+  };
+type UserStatus__418351110 = {#Active; #Inactive};
+type User__900149266 =
+  {
+    createdAt : Timestamp__301639476;
+    var department : Text;
+    var designation : Text;
+    email : Text;
+    employeeId : EmployeeId__291433800;
+    fullName : Text;
+    var lastLogin : ?Timestamp__301639476;
+    var mustChangePassword : Bool;
+    var passwordHash : Text;
+    var role : Role__300349085;
+    var roles : [Role__300349085];
+    var status : UserStatus__418351110
+  };
+type WasteEntry__475710427 =
+  {
+    contractorName : Text;
+    createdAt : Timestamp__301639476;
+    department : Text;
+    disposalDate : Text;
+    disposalMethod : Text;
+    loggedBy : EmployeeId__291433800;
+    manifestNumber : Text;
+    quantity : Float;
+    unit : Text;
+    wasteType : WasteType__63037181
+  };
+type WasteType__63037181 = {#General; #Hazardous; #Recyclable; #Scheduled};
+type WaterEntry__625491902 =
+  {
+    consumption : Float;
+    createdAt : Timestamp__301639476;
+    department : Text;
+    loggedBy : EmployeeId__291433800;
+    month : Nat;
+    source : WaterSource__312548329;
+    target : Float;
+    year : Nat
+  };
+type WaterSource__312548329 = {#Groundwater; #Municipal; #Recycled};
+actor ({
+  stable NS_PER_YEAR : Int;
+  stable PROTECTED_ID : Nat;
+  in airEmissions : List__415060402<AirEmissionEntry__17349220>;
+  in apl_state :
+    {
+      var inspectionSequence : Nat;
+      var issuanceSequence : Nat;
+      var lotoSequence : Nat;
+      var ppeSequence : Nat;
+      var riskScoreSeq : Nat
+    };
+  in auditLog : List__415060402<AuditEntry__381540928>;
+  in capa2_state : {var nextCapa2Seq : Nat};
+  in capa2s : List__415060402<CAPA2__716757223>;
+  in capas : List__415060402<CAPA__931431673>;
+  in carbonEntries : List__415060402<CarbonEntry__714739521>;
+  in con_state :
+    {var contractorSequence : Nat; var inductionCertSequence : Nat};
+  in contractors : Map__605269027<Text, Contractor__198317164>;
+  stable departmentList : [Text];
+  in effluentEntries : List__415060402<EffluentEntry__263753610>;
+  in employees : Map__605269027<Text, Employee__759338582>;
+  in energyEntries : List__415060402<EnergyEntry__969696567>;
+  in hiras : List__415060402<HIRA__201726955>;
+  in incidents : Map__605269027<Text, Incident__965616406>;
+  in itp_state :
+    {
+      var auditScore : Nat;
+      var manHours : Nat;
+      var nextCAPAId : Nat;
+      var nextCertSeq : Nat;
+      var nextIncSeq : Nat;
+      var nextPtwSeq : Nat;
+      var nextTrnSeq : Nat
+    };
+  in jsas : List__415060402<JSA__701394482>;
+  stable locationList : [Text];
+  in lotos : Map__605269027<Text, LOTO__688530994>;
+  in notifications : List__415060402<Notification__587267833>;
+  in observations : List__415060402<Observation__358192529>;
+  in ohj_state :
+    {var nextHiraSeq : Nat; var nextJsaSeq : Nat; var nextObsSeq : Nat};
+  in ppeInspections : List__415060402<PPEInspection__380099318>;
+  in ppeInventory : Map__605269027<Text, PPEInventory__438978944>;
+  in ppeIssuances : List__415060402<PPEIssuance__274310621>;
+  in ppeItems : Map__605269027<Text, PPEItem__447243446>;
+  in ptwExtensions : Map__605269027<Text, PTWExtension__310529801>;
+  stable ptw_state : {var ptwLastMonth : Text; var ptwMonthlyCounter : Nat};
+  in ptws : Map__605269027<Text, OldPTW__1041105171>;
+  in riskScoreHistory : List__415060402<RiskScoreEntry__981538386>;
+  in sessions : Map__605269027<Text, EmployeeId__291433800>;
+  in state :
+    {
+      adminEmail : Text;
+      var nextAuditId : Nat;
+      var nextEmpSeq : Nat;
+      var nextNotifId : Nat;
+      var systemAdminNotifyEmail : Text
+    };
+  in trainings : Map__605269027<Text, Training__733724997>;
+  in users : Map__605269027<EmployeeId__291433800, User__900149266>;
+  in wasteEntries : List__415060402<WasteEntry__475710427>;
+  in waterEntries : List__415060402<WaterEntry__625491902>
+}, {
+  stable NS_PER_YEAR : Int;
+  stable PROTECTED_ID : Nat;
+  stable airEmissions :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AirEmissionEntry__17349220]];
+      var elementIndex : Nat__490723111
+    };
+  stable apl_state :
+    {
+      var inspectionSequence : Nat;
+      var issuanceSequence : Nat;
+      var lotoSequence : Nat;
+      var ppeSequence : Nat;
+      var riskScoreSeq : Nat
+    };
+  stable auditLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AuditEntry__381540928]];
+      var elementIndex : Nat__490723111
+    };
+  stable capa2_state : {var nextCapa2Seq : Nat};
+  stable capa2s :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CAPA2__716757223]];
+      var elementIndex : Nat__490723111
+    };
+  stable capas :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CAPA__931431673]];
+      var elementIndex : Nat__490723111
+    };
+  stable carbonEntries :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CarbonEntry__714739521]];
+      var elementIndex : Nat__490723111
+    };
+  stable con_state :
+    {var contractorSequence : Nat; var inductionCertSequence : Nat};
+  stable contractors :
+    {
+      var root : Node__46230540<Text, Contractor__198317164>;
+      var size : Nat__490723111
+    };
+  stable departmentList : [Text];
+  stable effluentEntries :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EffluentEntry__263753610]];
+      var elementIndex : Nat__490723111
+    };
+  stable employees :
+    {
+      var root : Node__46230540<Text, Employee__759338582>;
+      var size : Nat__490723111
+    };
+  stable energyEntries :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EnergyEntry__969696567]];
+      var elementIndex : Nat__490723111
+    };
+  stable hiras :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?HIRA__201726955]];
+      var elementIndex : Nat__490723111
+    };
+  stable incidents :
+    {
+      var root : Node__46230540<Text, Incident__965616406>;
+      var size : Nat__490723111
+    };
+  stable itp_state :
+    {
+      var auditScore : Nat;
+      var manHours : Nat;
+      var nextCAPAId : Nat;
+      var nextCertSeq : Nat;
+      var nextIncSeq : Nat;
+      var nextPtwSeq : Nat;
+      var nextTrnSeq : Nat
+    };
+  stable jsas :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?JSA__701394482]];
+      var elementIndex : Nat__490723111
+    };
+  stable locationList : [Text];
+  stable lotos :
+    {
+      var root : Node__46230540<Text, LOTO__688530994>;
+      var size : Nat__490723111
+    };
+  stable notifications :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Notification__587267833]];
+      var elementIndex : Nat__490723111
+    };
+  stable observations :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Observation__358192529]];
+      var elementIndex : Nat__490723111
+    };
+  stable ohj_state :
+    {var nextHiraSeq : Nat; var nextJsaSeq : Nat; var nextObsSeq : Nat};
+  stable ppeInspections :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PPEInspection__380099318]];
+      var elementIndex : Nat__490723111
+    };
+  stable ppeInventory :
+    {
+      var root : Node__46230540<Text, PPEInventory__438978944>;
+      var size : Nat__490723111
+    };
+  stable ppeIssuances :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PPEIssuance__274310621]];
+      var elementIndex : Nat__490723111
+    };
+  stable ppeItems :
+    {
+      var root : Node__46230540<Text, PPEItem__447243446>;
+      var size : Nat__490723111
+    };
+  stable ptwExtensions :
+    {
+      var root : Node__46230540<Text, PTWExtension__310529801>;
+      var size : Nat__490723111
+    };
+  stable ptw_state : {var ptwLastMonth : Text; var ptwMonthlyCounter : Nat};
+  stable ptws :
+    {
+      var root : Node__46230540<Text, PermitToWork__208807121>;
+      var size : Nat__490723111
+    };
+  stable riskScoreHistory :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RiskScoreEntry__981538386]];
+      var elementIndex : Nat__490723111
+    };
+  stable sessions :
+    {
+      var root : Node__46230540<Text, EmployeeId__291433800>;
+      var size : Nat__490723111
+    };
+  stable state :
+    {
+      adminEmail : Text;
+      var nextAuditId : Nat;
+      var nextEmpSeq : Nat;
+      var nextNotifId : Nat;
+      var systemAdminNotifyEmail : Text
+    };
+  stable trainings :
+    {
+      var root : Node__46230540<Text, Training__733724997>;
+      var size : Nat__490723111
+    };
+  stable users :
+    {
+      var root : Node__46230540<EmployeeId__291433800, User__900149266>;
+      var size : Nat__490723111
+    };
+  stable wasteEntries :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?WasteEntry__475710427]];
+      var elementIndex : Nat__490723111
+    };
+  stable waterEntries :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?WaterEntry__625491902]];
+      var elementIndex : Nat__490723111
+    }
+});

@@ -1,0 +1,1673 @@
+type WaterSource = 
+ variant {
+   Groundwater;
+   Municipal;
+   Recycled;
+ };
+type WaterEntry = 
+ record {
+   consumption: float64;
+   createdAt: Timestamp;
+   department: text;
+   loggedBy: EmployeeId;
+   month: nat;
+   source: WaterSource;
+   target: float64;
+   year: nat;
+ };
+type WasteType = 
+ variant {
+   General;
+   Hazardous;
+   Recyclable;
+   Scheduled;
+ };
+type WasteEntry = 
+ record {
+   contractorName: text;
+   createdAt: Timestamp;
+   department: text;
+   disposalDate: text;
+   disposalMethod: text;
+   loggedBy: EmployeeId;
+   manifestNumber: text;
+   quantity: float64;
+   unit: text;
+   wasteType: WasteType;
+ };
+type UserView = 
+ record {
+   createdAt: Timestamp;
+   department: text;
+   designation: text;
+   email: text;
+   employeeId: EmployeeId;
+   fullName: text;
+   lastLogin: opt Timestamp;
+   mustChangePassword: bool;
+   role: Role;
+   roles: vec Role;
+   status: UserStatus;
+ };
+type UserStatus = 
+ variant {
+   Active;
+   Inactive;
+ };
+type TrainingView = 
+ record {
+   attendees: vec TrainingAttendeeView;
+   createdAt: Timestamp;
+   createdById: EmployeeId;
+   department: text;
+   frequency: TrainingFrequency;
+   name: text;
+   trainer: text;
+   trainingDate: text;
+   trainingId: text;
+   trainingType: TrainingType;
+ };
+type TrainingType = 
+ variant {
+   External;
+   Induction;
+   OnTheJob;
+   Refresher;
+   Regulatory;
+ };
+type TrainingFrequency = 
+ variant {
+   Annual;
+   BiAnnual;
+   OneTime;
+   ThreeYearly;
+ };
+type TrainingAttendeeView = 
+ record {
+   attendance: AttendanceStatus;
+   certStatus: opt CertificateStatus;
+   certificateId: opt text;
+   empCode: text;
+   empName: text;
+   expiryDate: opt text;
+ };
+type Timestamp = int;
+type Severity = 
+ variant {
+   Critical;
+   High;
+   Low;
+   Medium;
+ };
+type RootCauseCat = 
+ variant {
+   Environmental;
+   EquipmentFailure;
+   HumanError;
+   ManagementSystem;
+   ProcedureGap;
+   TrainingGap;
+ };
+type Role = 
+ variant {
+   AreaInCharge;
+   ContractorAdmin;
+   Employee;
+   HOD;
+   SafetyOfficer;
+   SystemAdmin;
+ };
+type RiskScoreView = 
+ record {
+   calculatedAt: Timestamp;
+   calculatedBy: text;
+   departmentScores: vec record {
+                           text;
+                           nat;
+                         };
+   nearMissCount: nat;
+   openHighCriticalIncidents: nat;
+   overallScore: nat;
+   overdueCAPACount: nat;
+   riskLevel: RiskLevel;
+   trainingGapCount: nat;
+   unsafeObsCount: nat;
+ };
+type RiskLevel = 
+ variant {
+   Critical;
+   High;
+   Low;
+   Medium;
+ };
+type Result_9 = 
+ variant {
+   err: text;
+   ok: vec PPEItem;
+ };
+type Result_8 = 
+ variant {
+   err: text;
+   ok: vec TrainingView;
+ };
+type Result_7 = 
+ variant {
+   err: text;
+   ok: vec UserView;
+ };
+type Result_6 = 
+ variant {
+   err: text;
+   ok: record {
+         mustChangePassword: bool;
+         token: text;
+       };
+ };
+type Result_51 = 
+ variant {
+   err: text;
+   ok: RiskScoreView;
+ };
+type Result_50 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      byDept: vec record {
+                    text;
+                    nat;
+                  };
+      safe: nat;
+      score: nat;
+      total: nat;
+      unsafe: nat;
+    };
+ };
+type Result_5 = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type Result_49 = 
+ variant {
+   err: text;
+   ok: CAPA2View;
+ };
+type Result_48 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      avgDaysToClose: float64;
+      byDept: vec record {
+                    text;
+                    nat;
+                  };
+      bySource: vec record {
+                      text;
+                      nat;
+                    };
+      closed: nat;
+      closureRate: nat;
+      inProgress: nat;
+      open: nat;
+      overdue: nat;
+      total: nat;
+    };
+ };
+type Result_47 = 
+ variant {
+   err: text;
+   ok: ContractorView;
+ };
+type Result_46 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      activeCount: nat;
+      expiringDocs: nat;
+      incidentCount: nat;
+      inductionCompliance: nat;
+      performanceSummary: vec record {
+                                text;
+                                text;
+                              };
+    };
+ };
+type Result_45 = 
+ variant {
+   err: text;
+   ok: vec DeptOHSEScore;
+ };
+type Result_44 = 
+ variant {
+   err: text;
+   ok: vec record {
+             text;
+             nat;
+             text;
+           };
+ };
+type Result_43 = 
+ variant {
+   err: text;
+   ok: EmployeeView;
+ };
+type Result_42 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      air: vec AirEmissionEntry;
+      carbon: vec CarbonEntry;
+      effluent: vec EffluentEntry;
+      energy: vec EnergyEntry;
+      esgScore: nat;
+      waste: vec WasteEntry;
+      water: vec WaterEntry;
+    };
+ };
+type Result_41 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      carbonTotal: float64;
+      complianceRate: nat;
+      energyTotal: float64;
+      esgScore: nat;
+      trendData: vec record {
+                       text;
+                       float64;
+                     };
+      wasteTotal: float64;
+      waterTotal: float64;
+    };
+ };
+type Result_40 = 
+ variant {
+   err: text;
+   ok: HIRAView;
+ };
+type Result_4 = 
+ variant {
+   err: text;
+   ok: IncidentView;
+ };
+type Result_39 = 
+ variant {
+   err: text;
+   ok: vec MonthlyTrend;
+ };
+type Result_38 = 
+ variant {
+   err: text;
+   ok: JSAView;
+ };
+type Result_37 = 
+ variant {
+   err: text;
+   ok: KPISummary;
+ };
+type Result_36 = 
+ variant {
+   err: text;
+   ok: vec text;
+ };
+type Result_35 = 
+ variant {
+   err: text;
+   ok: LOTOView;
+ };
+type Result_34 = 
+ variant {
+   err: text;
+   ok: record {
+         active: nat;
+         completedThisMonth: nat;
+         overdue: nat;
+       };
+ };
+type Result_33 = 
+ variant {
+   err: text;
+   ok: vec NotificationView;
+ };
+type Result_32 = 
+ variant {
+   err: text;
+   ok: ObservationView;
+ };
+type Result_31 = 
+ variant {
+   err: text;
+   ok: PermitToWorkView;
+ };
+type Result_30 = 
+ variant {
+   err: text;
+   ok: PTWMasterData;
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type Result_29 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      complianceRate: nat;
+      issuanceCount: nat;
+      lowStockItems: nat;
+      totalItems: nat;
+    };
+ };
+type Result_28 = 
+ variant {
+   err: text;
+   ok:
+    record {
+      avgCycleTimeDays: float64;
+      byType: vec record {
+                    text;
+                    nat;
+                  };
+      cancelledThisMonth: nat;
+    };
+ };
+type Result_27 = 
+ variant {
+   err: text;
+   ok: opt PTWExtensionView;
+ };
+type Result_26 = 
+ variant {
+   err: text;
+   ok: vec record {
+             driver: text;
+             recommendation: text;
+             severity: text;
+           };
+ };
+type Result_25 = 
+ variant {
+   err: text;
+   ok: vec RiskScoreView;
+ };
+type Result_24 = 
+ variant {
+   err: text;
+   ok: vec record {
+             text;
+             nat;
+           };
+ };
+type Result_23 = 
+ variant {
+   err: text;
+   ok: TrainingView;
+ };
+type Result_22 = 
+ variant {
+   err: text;
+   ok: vec AuditEntry;
+ };
+type Result_21 = 
+ variant {
+   err: text;
+   ok: vec CAPAView;
+ };
+type Result_20 = 
+ variant {
+   err: text;
+   ok: vec CAPA2View;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: nat;
+ };
+type Result_19 = 
+ variant {
+   err: text;
+   ok: vec ContractorView;
+ };
+type Result_18 = 
+ variant {
+   err: text;
+   ok: vec EmployeeView;
+ };
+type Result_17 = 
+ variant {
+   err: text;
+   ok: vec HIRAView;
+ };
+type Result_16 = 
+ variant {
+   err: text;
+   ok: vec IncidentView;
+ };
+type Result_15 = 
+ variant {
+   err: text;
+   ok: vec JSAView;
+ };
+type Result_14 = 
+ variant {
+   err: text;
+   ok: vec LOTOView;
+ };
+type Result_13 = 
+ variant {
+   err: text;
+   ok: vec ObservationView;
+ };
+type Result_12 = 
+ variant {
+   err: text;
+   ok: vec PermitToWorkView;
+ };
+type Result_11 = 
+ variant {
+   err: text;
+   ok: vec PPEInventoryView;
+ };
+type Result_10 = 
+ variant {
+   err: text;
+   ok: vec PPEIssuance;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: UserView;
+ };
+type PermitType = 
+ variant {
+   ChemicalHandling;
+   ColdWork;
+   ConfinedSpace;
+   ElectricalWork;
+   Excavation;
+   GeneralWork;
+   HeightWork;
+   HotWork;
+   Lifting;
+   Shutdown;
+ };
+type PermitToWorkView = 
+ record {
+   area: text;
+   areaInChargeSignature: opt ApprovalSignature;
+   checklist: vec record {
+                    text;
+                    bool;
+                  };
+   coPpm: opt float64;
+   contractorName: text;
+   createdAt: Timestamp;
+   createdBy: EmployeeId;
+   crossReference: text;
+   customHazard: text;
+   department: text;
+   electricalApproverSignature: opt ApprovalSignature;
+   electricalEnergisation: opt EnergisationRecord;
+   emergencyRescueDescription: text;
+   emergencyRescuePlan: bool;
+   finalIssuerSignature: opt ApprovalSignature;
+   h2sPpm: opt float64;
+   hodSignature: opt ApprovalSignature;
+   id: text;
+   insurance: opt InsuranceInfo;
+   isolation: opt IsolationDetail;
+   isolationAuthoritySignature: opt ApprovalSignature;
+   issuedTo: text;
+   issuingDepartment: text;
+   jobDescription: text;
+   jobLocation: text;
+   lelPercent: opt float64;
+   linkedHiraNumber: opt text;
+   linkedJsaNumber: opt text;
+   nominatedAreaInChargeEmployeeId: opt EmployeeId;
+   nominatedFinalIssuerEmployeeId: opt EmployeeId;
+   nominatedHodEmployeeId: opt EmployeeId;
+   nominatedIsolationAuthorityEmployeeId: opt EmployeeId;
+   nominatedSafetyOfficerEmployeeId: opt EmployeeId;
+   o2Percent: opt float64;
+   permitType: PermitType;
+   requestorSignature: opt ApprovalSignature;
+   riskLevel: RiskLevel;
+   safetyOfficerSignature: opt ApprovalSignature;
+   selectedHazards: vec text;
+   selectedPPE: vec text;
+   serviceProcessApproverSignature: opt ApprovalSignature;
+   serviceProcessEnergisation: opt EnergisationRecord;
+   status: PTWStatus;
+   supervisorName: text;
+   timeEnd: text;
+   timeStart: text;
+   toolboxTalkAttendees: vec text;
+   toolboxTalkDone: bool;
+   updatedAt: Timestamp;
+   validityDate: text;
+ };
+type PermitExtension = 
+ record {
+   extendedAt: Timestamp;
+   extendedBy: EmployeeId;
+   newEndTime: Timestamp;
+   originalEndTime: Timestamp;
+   reason: text;
+ };
+type PerformanceRating = 
+ variant {
+   Excellent;
+   Fair;
+   Good;
+   Poor;
+ };
+type PTWStatus = 
+ variant {
+   Active;
+   Approved;
+   AreaReview;
+   Closed;
+   Draft;
+   Expired;
+   FinalApproval;
+   HODReview;
+   IsolationReview;
+   Rejected;
+   SafetyReview;
+   Submitted;
+   Suspended;
+ };
+type PTWMasterData = 
+ record {
+   departments: vec text;
+   hazards: vec text;
+   locations: vec text;
+   permitTypes: vec text;
+   ppeList: vec text;
+ };
+type PTWExtensionView = 
+ record {
+   cancellationReason: opt text;
+   cancelledAt: opt Timestamp;
+   cancelledBy: opt EmployeeId;
+   createdAt: Timestamp;
+   emergencyRescueDesc: opt text;
+   emergencyRescuePlan: bool;
+   extensions: vec PermitExtension;
+   gasTestCO: opt float64;
+   gasTestH2S: opt float64;
+   gasTestLEL: opt float64;
+   gasTestO2: opt float64;
+   gasTestPassed: bool;
+   isCancelled: bool;
+   linkedHiraNumber: opt text;
+   linkedJsaNumber: opt text;
+   permitNumber: text;
+   requiresLOTO: bool;
+   toolboxAttendees: vec EmployeeId;
+   toolboxTalkDone: bool;
+ };
+type PTWExtension = 
+ record {
+   cancellationReason: opt text;
+   cancelledAt: opt Timestamp;
+   cancelledBy: opt EmployeeId;
+   createdAt: Timestamp;
+   emergencyRescueDesc: opt text;
+   emergencyRescuePlan: bool;
+   extensions: vec PermitExtension;
+   gasTestCO: opt float64;
+   gasTestH2S: opt float64;
+   gasTestLEL: opt float64;
+   gasTestO2: opt float64;
+   gasTestPassed: bool;
+   isCancelled: bool;
+   linkedHiraNumber: opt text;
+   linkedJsaNumber: opt text;
+   permitNumber: text;
+   requiresLOTO: bool;
+   toolboxAttendees: vec EmployeeId;
+   toolboxTalkDone: bool;
+ };
+type PPEItem = 
+ record {
+   createdAt: Timestamp;
+   itemId: text;
+   itemName: text;
+   itemType: text;
+   shelfLifeMonths: nat;
+   size: text;
+   standard: text;
+ };
+type PPEIssuance = 
+ record {
+   condition: PPEConditionIssue;
+   createdAt: Timestamp;
+   employeeId: EmployeeId;
+   issuanceId: text;
+   issueDate: text;
+   itemId: text;
+   quantity: nat;
+   size: text;
+ };
+type PPEInventoryView = 
+ record {
+   itemId: text;
+   lastUpdated: Timestamp;
+   minStockLevel: nat;
+   quantityInStock: int;
+ };
+type PPEInspectionCondition = 
+ variant {
+   Damaged;
+   Good;
+   Replace;
+ };
+type PPEConditionIssue = 
+ variant {
+   New;
+   Reissued;
+ };
+type ObservationView = 
+ record {
+   acknowledgeRemarks: opt text;
+   acknowledgedAt: opt Timestamp;
+   acknowledgedBy: opt EmployeeId;
+   area: text;
+   createdAt: Timestamp;
+   dateTime: Timestamp;
+   department: text;
+   description: text;
+   immediateAction: text;
+   linkedCapaId: opt text;
+   location: text;
+   obsNumber: text;
+   obsType: ObservationType;
+   observerEmpId: EmployeeId;
+   observerName: text;
+   photoUrl: opt text;
+   severity: ObservationSeverity;
+   status: ObservationStatus;
+ };
+type ObservationType = 
+ variant {
+   NearMiss;
+   PositiveReinforcement;
+   SafeAct;
+   UnsafeAct;
+   UnsafeCondition;
+ };
+type ObservationStatus = 
+ variant {
+   CAPAPending;
+   Closed;
+   Open;
+   UnderReview;
+ };
+type ObservationSeverity = 
+ variant {
+   High;
+   Low;
+   Medium;
+ };
+type NotificationView = 
+ record {
+   createdAt: Timestamp;
+   id: nat;
+   isRead: bool;
+   link: text;
+   message: text;
+   recipientId: EmployeeId;
+ };
+type MonthlyTrend = 
+ record {
+   incidentCount: nat;
+   month: nat;
+   year: nat;
+ };
+type LockEntryView = 
+ record {
+   assignedEmpId: EmployeeId;
+   lockNumber: text;
+   status: LockEntryStatus;
+ };
+type LockEntryStatus = 
+ variant {
+   Applied;
+   Removed;
+ };
+type LOTOView = 
+ record {
+   authorizedAt: opt Timestamp;
+   authorizedByEmpId: opt EmployeeId;
+   authorizedEmpIds: vec EmployeeId;
+   createdAt: Timestamp;
+   createdBy: EmployeeId;
+   endDateTime: opt Timestamp;
+   energySources: vec EnergySourceLOTO;
+   equipmentName: text;
+   isolationPoints: vec IsolationPoint;
+   lockRegister: vec LockEntryView;
+   lotoNumber: text;
+   procedureSteps: vec text;
+   reEnergizationChecklist: vec text;
+   startDateTime: Timestamp;
+   status: LOTOStatus;
+   tagNumber: text;
+   updatedAt: Timestamp;
+   workDescription: text;
+ };
+type LOTOStatus = 
+ variant {
+   Active;
+   Cancelled;
+   Completed;
+   Draft;
+ };
+type KPISummary = 
+ record {
+   auditScorePct: float64;
+   ltifr: float64;
+   nearMissCount: nat;
+   openCAPAs: nat;
+   ptwCompliancePct: float64;
+   totalIncidents: nat;
+   trainingCompliancePct: float64;
+   trir: float64;
+ };
+type JSAView = 
+ record {
+   analysisDate: text;
+   approvedBy: opt EmployeeId;
+   area: text;
+   briefingAttendees: vec EmployeeId;
+   createdAt: Timestamp;
+   department: text;
+   emergencyContacts: text;
+   faceShield: bool;
+   gloves: bool;
+   goggles: bool;
+   harness: bool;
+   helmetRequired: bool;
+   hodAt: opt Timestamp;
+   hodRemarks: opt text;
+   jobTitle: text;
+   jsaNumber: text;
+   linkedPtwNumber: opt text;
+   location: text;
+   preparedBy: EmployeeId;
+   respirator: bool;
+   reviewedBy: opt EmployeeId;
+   safetyShoes: bool;
+   soAt: opt Timestamp;
+   soRemarks: opt text;
+   status: JSAStatus;
+   steps: vec JSAStep;
+   updatedAt: Timestamp;
+ };
+type JSAStep = 
+ record {
+   controls: text;
+   description: text;
+   hazards: text;
+   responsibleEmpId: opt EmployeeId;
+   riskLevel: RiskLevel;
+   stepNo: nat;
+ };
+type JSAStatus = 
+ variant {
+   Active;
+   Approved;
+   Closed;
+   Draft;
+   UnderReview;
+ };
+type IsolationPointStatus = 
+ variant {
+   Applied;
+   Removed;
+ };
+type IsolationPoint = 
+ record {
+   location: text;
+   lockNumber: text;
+   pointId: text;
+   status: IsolationPointStatus;
+ };
+type IsolationDetail = 
+ record {
+   description: text;
+   electricalOptions: vec text;
+   isolationBy: EmployeeId;
+   isolationDateTime: opt Timestamp;
+   isolationRequired: bool;
+   lotoLockNumber: text;
+   serviceOptions: vec text;
+   verificationStatus: text;
+ };
+type InsuranceType = 
+ variant {
+   ESI;
+   EmployeeCompensation;
+   GroupAccident;
+   WorkerCompensation;
+ };
+type InsuranceInfo = 
+ record {
+   documentUrls: vec text;
+   insuranceType: InsuranceType;
+   policyNumber: text;
+   validFrom: text;
+   validTill: text;
+   verificationStatus: text;
+ };
+type InductionStatus = 
+ variant {
+   Fail;
+   Pass;
+   Pending;
+ };
+type IncidentView = 
+ record {
+   closedAt: opt Timestamp;
+   correctiveAction: text;
+   createdAt: Timestamp;
+   department: text;
+   description: text;
+   incidentDate: text;
+   incidentNumber: text;
+   incidentType: IncidentType;
+   injuredPersonCode: opt text;
+   location: text;
+   reportedById: EmployeeId;
+   reportedByName: text;
+   rootCause: text;
+   severity: Severity;
+   status: IncidentStatus;
+ };
+type IncidentType = 
+ variant {
+   Fatal;
+   FirstAid;
+   LTI;
+   NearMiss;
+   UnsafeAct;
+   UnsafeCondition;
+ };
+type IncidentStatus = 
+ variant {
+   CAPAPending;
+   Closed;
+   Open;
+   UnderInvestigation;
+ };
+type HazardType = 
+ variant {
+   Biological;
+   Chemical;
+   Environmental;
+   Ergonomic;
+   Physical;
+   Psychological;
+ };
+type HazardRow = 
+ record {
+   additionalControls: text;
+   existingControls: text;
+   hazardDescription: text;
+   hazardId: text;
+   hazardType: HazardType;
+   likelihood: nat;
+   residualRiskScore: nat;
+   responsibleEmpId: opt EmployeeId;
+   riskLevel: RiskLevel;
+   riskScore: nat;
+   severity: nat;
+ };
+type HIRAView = 
+ record {
+   aicAt: opt Timestamp;
+   aicEmpId: opt EmployeeId;
+   aicRemarks: opt text;
+   approvalStep: nat;
+   area: text;
+   createdAt: Timestamp;
+   createdBy: EmployeeId;
+   department: text;
+   hazards: vec HazardRow;
+   hiraNumber: text;
+   hodAt: opt Timestamp;
+   hodEmpId: opt EmployeeId;
+   hodRemarks: opt text;
+   linkedPtwNumber: opt text;
+   location: text;
+   responsibleEmpId: opt EmployeeId;
+   reviewDate: text;
+   soAt: opt Timestamp;
+   soEmpId: opt EmployeeId;
+   soRemarks: opt text;
+   status: HIRAStatus;
+   taskDescription: text;
+   updatedAt: Timestamp;
+ };
+type HIRAStatus = 
+ variant {
+   Approved;
+   Draft;
+   Expired;
+   UnderReview;
+ };
+type EnergyType = 
+ variant {
+   Diesel;
+   Electricity;
+   Gas;
+   LPG;
+   Renewable;
+ };
+type EnergySourceLOTO = 
+ variant {
+   Chemical;
+   Electrical;
+   Gravitational;
+   Hydraulic;
+   Mechanical;
+   Pneumatic;
+   Thermal;
+ };
+type EnergyEntry = 
+ record {
+   carbonEquivalent: float64;
+   consumption: float64;
+   createdAt: Timestamp;
+   department: text;
+   energyType: EnergyType;
+   loggedBy: EmployeeId;
+   month: nat;
+   target: float64;
+   unit: text;
+   year: nat;
+ };
+type EnergisationRecord = 
+ record {
+   approvedAt: opt Timestamp;
+   approverEmployeeId: EmployeeId;
+   approverName: text;
+   checklistItems: vec record {
+                         text;
+                         bool;
+                       };
+   energisationType: text;
+   lotoLockNumber: text;
+   signature: text;
+ };
+type EmploymentType = 
+ variant {
+   Contract;
+   FullTime;
+   Temporary;
+ };
+type EmployeeView = 
+ record {
+   contact: text;
+   createdAt: Timestamp;
+   dateOfBirth: text;
+   department: text;
+   designation: text;
+   email: text;
+   empCode: text;
+   empStatus: EmployeeStatus;
+   employmentType: EmploymentType;
+   fullName: text;
+   joiningDate: text;
+   site: text;
+ };
+type EmployeeStatus = 
+ variant {
+   Active;
+   Inactive;
+   Resigned;
+ };
+type EmployeeId = nat;
+type EffluentType = 
+ variant {
+   Domestic;
+   Process;
+   Stormwater;
+ };
+type EffluentParameter = 
+ variant {
+   BOD;
+   COD;
+   HeavyMetals;
+   PH;
+   TSS;
+ };
+type EffluentEntry = 
+ record {
+   createdAt: Timestamp;
+   department: text;
+   effluentType: EffluentType;
+   isCompliant: bool;
+   loggedBy: EmployeeId;
+   parameter: EffluentParameter;
+   regulatoryLimit: float64;
+   samplingDate: text;
+   value: float64;
+ };
+type DeptOHSEScore = 
+ record {
+   department: text;
+   score: float64;
+ };
+type CreateUserInput = 
+ record {
+   department: text;
+   designation: text;
+   email: text;
+   employeeId: EmployeeId;
+   fullName: text;
+   password: text;
+   role: Role;
+ };
+type CreateTrainingInput = 
+ record {
+   attendeeCodes: vec text;
+   department: text;
+   frequency: TrainingFrequency;
+   name: text;
+   trainer: text;
+   trainingDate: text;
+   trainingType: TrainingType;
+ };
+type CreatePermitInput = 
+ record {
+   area: text;
+   checklist: vec record {
+                    text;
+                    bool;
+                  };
+   contractorName: text;
+   crossReference: text;
+   customHazard: text;
+   department: text;
+   insurance: opt InsuranceInfo;
+   isolation: opt IsolationDetail;
+   issuedTo: text;
+   issuingDepartment: text;
+   jobDescription: text;
+   jobLocation: text;
+   nominatedHodEmployeeId: opt EmployeeId;
+   permitType: PermitType;
+   riskLevel: RiskLevel;
+   selectedHazards: vec text;
+   selectedPPE: vec text;
+   supervisorName: text;
+   timeEnd: text;
+   timeStart: text;
+   validityDate: text;
+ };
+type CreatePPEItemInput = 
+ record {
+   itemName: text;
+   itemType: text;
+   shelfLifeMonths: nat;
+   size: text;
+   standard: text;
+ };
+type CreateObservationInput = 
+ record {
+   area: text;
+   dateTime: Timestamp;
+   department: text;
+   description: text;
+   immediateAction: text;
+   location: text;
+   obsType: ObservationType;
+   photoUrl: opt text;
+   severity: ObservationSeverity;
+ };
+type CreateLOTOInput = 
+ record {
+   equipmentName: text;
+   startDateTime: Timestamp;
+   tagNumber: text;
+   workDescription: text;
+ };
+type CreateJSAInput = 
+ record {
+   analysisDate: text;
+   area: text;
+   department: text;
+   emergencyContacts: text;
+   faceShield: bool;
+   gloves: bool;
+   goggles: bool;
+   harness: bool;
+   helmetRequired: bool;
+   jobTitle: text;
+   linkedPtwNumber: opt text;
+   location: text;
+   respirator: bool;
+   safetyShoes: bool;
+ };
+type CreateIncidentInput = 
+ record {
+   capaActionOwnerId: EmployeeId;
+   capaDeadline: text;
+   department: text;
+   description: text;
+   incidentDate: text;
+   incidentType: IncidentType;
+   injuredPersonCode: opt text;
+   location: text;
+   severity: Severity;
+ };
+type CreateHIRAInput = 
+ record {
+   area: text;
+   department: text;
+   location: text;
+   responsibleEmpId: opt EmployeeId;
+   reviewDate: text;
+   taskDescription: text;
+ };
+type CreateContractorInput = 
+ record {
+   companyName: text;
+   contactPerson: text;
+   contractEndDate: text;
+   contractStartDate: text;
+   email: text;
+   phone: text;
+   registrationNumber: text;
+   typeOfWork: text;
+ };
+type CreateCAPAInput = 
+ record {
+   actionDescription: text;
+   actionOwnerEmpId: EmployeeId;
+   capaType: CAPAType;
+   department: text;
+   findingDescription: text;
+   linkedRecordNumber: text;
+   priority: CAPAPriority;
+   rootCauseCat: RootCauseCat;
+   rootCauseDesc: text;
+   source: CAPASource2;
+   targetDate: text;
+ };
+type ContractorView = 
+ record {
+   companyName: text;
+   contactPerson: text;
+   contractEndDate: text;
+   contractStartDate: text;
+   contractorId: text;
+   createdAt: Timestamp;
+   documents: vec ContractorDocView;
+   email: text;
+   employees: vec ContractorEmployeeView;
+   linkedPtwNumbers: vec text;
+   performance: opt ContractorPerformance;
+   phone: text;
+   registrationNumber: text;
+   status: ContractorStatus;
+   typeOfWork: text;
+   updatedAt: Timestamp;
+ };
+type ContractorStatus = 
+ variant {
+   Active;
+   Blacklisted;
+   Expired;
+ };
+type ContractorPerformance = 
+ record {
+   evaluatedAt: Timestamp;
+   evaluatedBy: EmployeeId;
+   incidentCount: nat;
+   nearMissCount: nat;
+   overallRating: PerformanceRating;
+   ptwCompliance: float64;
+   safetyScore: nat;
+   trainingCompliance: float64;
+ };
+type ContractorEmployeeView = 
+ record {
+   certificateNumber: opt text;
+   empName: text;
+   idNumber: text;
+   inductionDate: opt text;
+   inductionStatus: InductionStatus;
+   trade: text;
+ };
+type ContractorEmployee = 
+ record {
+   certificateNumber: opt text;
+   empName: text;
+   idNumber: text;
+   inductionDate: opt text;
+   inductionStatus: InductionStatus;
+   trade: text;
+ };
+type ContractorDocView = 
+ record {
+   docType: text;
+   expiryDate: text;
+   status: ContractorDocStatus;
+   uploadedAt: Timestamp;
+ };
+type ContractorDocStatus = 
+ variant {
+   Expired;
+   Expiring;
+   Valid;
+ };
+type CertificateStatus = 
+ variant {
+   Expired;
+   ExpiringSoon;
+   Valid;
+ };
+type CarbonScope = 
+ variant {
+   Scope1;
+   Scope2;
+   Scope3;
+ };
+type CarbonEntry = 
+ record {
+   co2eTonnes: float64;
+   createdAt: Timestamp;
+   description: text;
+   loggedBy: EmployeeId;
+   month: nat;
+   scope: CarbonScope;
+   year: nat;
+ };
+type CAPAView = 
+ record {
+   actionOwnerId: EmployeeId;
+   actionOwnerName: text;
+   closedAt: opt Timestamp;
+   createdAt: Timestamp;
+   deadline: text;
+   description: text;
+   id: nat;
+   incidentNumber: text;
+   status: CAPAStatus;
+ };
+type CAPAType = 
+ variant {
+   Corrective;
+   Preventive;
+ };
+type CAPAStatus2 = 
+ variant {
+   Closed;
+   InProgress;
+   Open;
+   Overdue;
+   PendingVerification;
+ };
+type CAPAStatus = 
+ variant {
+   Closed;
+   InProgress;
+   Open;
+   Overdue;
+ };
+type CAPASource2 = 
+ variant {
+   Audit;
+   HIRA;
+   Incident;
+   JSA;
+   Manual;
+   Observation;
+ };
+type CAPAPriority = 
+ variant {
+   Critical;
+   High;
+   Low;
+   Medium;
+ };
+type CAPA2View = 
+ record {
+   actionDescription: text;
+   actionOwnerEmpId: EmployeeId;
+   capaNumber: text;
+   capaType: CAPAType;
+   completionEvidence: opt text;
+   createdAt: Timestamp;
+   department: text;
+   findingDescription: text;
+   isOverdue: bool;
+   linkedRecordNumber: text;
+   priority: CAPAPriority;
+   progressUpdate: text;
+   rootCauseCat: RootCauseCat;
+   rootCauseDesc: text;
+   source: CAPASource2;
+   status: CAPAStatus2;
+   targetDate: text;
+   updatedAt: Timestamp;
+   verifiedAt: opt Timestamp;
+   verifiedByEmpId: opt EmployeeId;
+ };
+type AuditEntry = 
+ record {
+   action: AuditAction;
+   actorId: EmployeeId;
+   actorName: text;
+   actorRole: Role;
+   detail: text;
+   id: nat;
+   module: text;
+   recordRef: text;
+   timestamp: Timestamp;
+ };
+type AuditAction = 
+ variant {
+   Approved;
+   Closed;
+   Created;
+   Deactivated;
+   Login;
+   Logout;
+   PasswordChanged;
+   PasswordReset;
+   Reactivated;
+   Rejected;
+   Updated;
+ };
+type AttendanceStatus = 
+ variant {
+   Absent;
+   Present;
+ };
+type ApprovalSignature = 
+ record {
+   approvalStatus: text;
+   designation: text;
+   employeeId: EmployeeId;
+   ipAddress: text;
+   name: text;
+   remarks: text;
+   signedAt: opt Timestamp;
+ };
+type AirPollutant = 
+ variant {
+   CO2;
+   NOx;
+   PM10;
+   SOx;
+   VOC;
+ };
+type AirEmissionSource = 
+ variant {
+   Fugitive;
+   Stack;
+   Vehicle;
+ };
+type AirEmissionEntry = 
+ record {
+   createdAt: Timestamp;
+   department: text;
+   isExceeded: bool;
+   loggedBy: EmployeeId;
+   measurementDate: text;
+   pollutant: AirPollutant;
+   regulatoryLimit: float64;
+   source: AirEmissionSource;
+   unit: text;
+   value: float64;
+ };
+type AddWaterInput = 
+ record {
+   consumption: float64;
+   department: text;
+   month: nat;
+   source: WaterSource;
+   target: float64;
+   year: nat;
+ };
+type AddWasteInput = 
+ record {
+   contractorName: text;
+   department: text;
+   disposalDate: text;
+   disposalMethod: text;
+   manifestNumber: text;
+   quantity: float64;
+   unit: text;
+   wasteType: WasteType;
+ };
+type AddEnergyInput = 
+ record {
+   carbonEquivalent: float64;
+   consumption: float64;
+   department: text;
+   energyType: EnergyType;
+   month: nat;
+   target: float64;
+   unit: text;
+   year: nat;
+ };
+type AddEmployeeInput = 
+ record {
+   contact: text;
+   dateOfBirth: text;
+   department: text;
+   designation: text;
+   email: text;
+   employmentType: EmploymentType;
+   fullName: text;
+   joiningDate: text;
+   site: text;
+ };
+type AddEffluentInput = 
+ record {
+   department: text;
+   effluentType: EffluentType;
+   parameter: EffluentParameter;
+   regulatoryLimit: float64;
+   samplingDate: text;
+   value: float64;
+ };
+type AddCarbonInput = 
+ record {
+   co2eTonnes: float64;
+   description: text;
+   month: nat;
+   scope: CarbonScope;
+   year: nat;
+ };
+type AddAirEmissionInput = 
+ record {
+   department: text;
+   measurementDate: text;
+   pollutant: AirPollutant;
+   regulatoryLimit: float64;
+   source: AirEmissionSource;
+   unit: text;
+   value: float64;
+ };
+service : {
+  acknowledgeObservation: (token: text, obsNumber: text, remarks: text) ->
+   (Result_1);
+  actOnHIRA: (token: text, hiraNumber: text, approve: bool, remarks: 
+   text) -> (Result_1);
+  actOnJSA: (token: text, jsaNumber: text, approve: bool, remarks: text) ->
+   (Result_1);
+  activateLoto: (token: text, lotoNumber: text) -> (Result_1);
+  addAirEmission: (token: text, input: AddAirEmissionInput) -> (Result_1);
+  addCarbonEntry: (token: text, input: AddCarbonInput) -> (Result_1);
+  addContractorDocument: (token: text, contractorId: text, docType: text,
+   expiryDate: text) -> (Result_1);
+  addContractorEmployee: (token: text, contractorId: text, emp:
+   ContractorEmployee) -> (Result_1);
+  addEffluentEntry: (token: text, input: AddEffluentInput) -> (Result_1);
+  addEmployee: (token: text, input: AddEmployeeInput) -> (Result_43);
+  addEnergyEntry: (token: text, input: AddEnergyInput) -> (Result_1);
+  addHazardRow: (token: text, hiraNumber: text, rowId: text,
+   hazardDescription: text, hazardType: HazardType, likelihood: nat,
+   severity: nat, existingControls: text, additionalControls: text,
+   residualRiskScore: nat, responsibleEmpId: opt EmployeeId) -> (Result_1);
+  addWasteEntry: (token: text, input: AddWasteInput) -> (Result_1);
+  addWaterEntry: (token: text, input: AddWaterInput) -> (Result_1);
+  answerRiskQuery: (token: text, question: text) -> (Result_5) query;
+  approvePTWAreaInCharge: (token: text, permitId: text, remarks: text,
+   nominatedNextId: nat) -> (Result_1);
+  approvePTWFinalIssuer: (token: text, permitId: text, remarks: text) ->
+   (Result_1);
+  approvePTWHOD: (token: text, permitId: text, remarks: text,
+   nominatedAreaInChargeId: nat) -> (Result_1);
+  approvePTWIsolationAuthority: (token: text, permitId: text, remarks: 
+   text, nominatedSafetyOfficerId: nat) -> (Result_1);
+  approvePTWSafetyOfficer: (token: text, permitId: text, remarks: text,
+   nominatedFinalIssuerId: nat) -> (Result_1);
+  calculateRiskScore: (token: text) -> (Result_51);
+  cancelLoto: (token: text, lotoNumber: text, reason: text) -> (Result_1);
+  cancelPermit: (token: text, permitNumber: text, reason: text) -> (Result_1);
+  changePassword: (token: text, oldPassword: text, newPassword: text) ->
+   (Result_1);
+  checkAndUpdateDocumentStatuses: () -> ();
+  checkOverdueCapas: () -> ();
+  closeCAPA: (token: text, capaId: nat) -> (Result_1);
+  closeObservation: (token: text, obsNumber: text) -> (Result_1);
+  closePTW: (token: text, permitId: text) -> (Result_1);
+  completeLoto: (token: text, lotoNumber: text) -> (Result_1);
+  createCapa2: (token: text, input: CreateCAPAInput) -> (Result_5);
+  createContractor: (token: text, input: CreateContractorInput) -> (Result_5);
+  createHIRA: (token: text, input: CreateHIRAInput) -> (Result_5);
+  createJSA: (token: text, input: CreateJSAInput) -> (Result_5);
+  createLoto: (token: text, input: CreateLOTOInput) -> (Result_5);
+  createObservation: (token: text, input: CreateObservationInput) ->
+   (Result_5);
+  createOrUpdatePtwExtension: (token: text, permitNumber: text, ext:
+   PTWExtension) -> (Result_1);
+  createPTW: (token: text, input: CreatePermitInput) -> (Result_5);
+  createPpeItem: (token: text, input: CreatePPEItemInput) -> (Result_5);
+  createTraining: (token: text, input: CreateTrainingInput) -> (Result_23);
+  createUser: (token: text, input: CreateUserInput) -> (Result);
+  extendPermit: (token: text, permitNumber: text, newEndTime: Timestamp,
+   reason: text) -> (Result_1);
+  getBbsStats: (token: text) -> (Result_50) query;
+  getCapa2: (token: text, capaNumber: text) -> (Result_49) query;
+  getCapa2Stats: (token: text) -> (Result_48) query;
+  getContractor: (token: text, contractorId: text) -> (Result_47) query;
+  getContractorStats: (token: text) -> (Result_46) query;
+  getDepartments: (token: text) -> (Result_36) query;
+  getDeptOHSEScores: (token: text) -> (Result_45) query;
+  getDeptRiskBreakdown: (token: text) -> (Result_44) query;
+  getEmployee: (token: text, empCode: text) -> (Result_43) query;
+  getEsgData: (token: text) -> (Result_42) query;
+  getEsgStats: (token: text, month: opt nat, year: opt nat, department:
+   opt text) -> (Result_41) query;
+  getHIRA: (token: text, hiraNumber: text) -> (Result_40) query;
+  getIncident: (token: text, incNum: text) -> (Result_4) query;
+  getIncidentTrend: (token: text, year: nat) -> (Result_39) query;
+  getJSA: (token: text, jsaNumber: text) -> (Result_38) query;
+  getKPISummary: (token: text, filterDept: opt text) -> (Result_37) query;
+  getLocations: (token: text) -> (Result_36) query;
+  getLoto: (token: text, lotoNumber: text) -> (Result_35) query;
+  getLotoStats: (token: text) -> (Result_34) query;
+  getNotifications: (token: text) -> (Result_33) query;
+  getObservation: (token: text, obsNumber: text) -> (Result_32) query;
+  getPTW: (token: text, permitId: text) -> (Result_31) query;
+  getPTWMasterData: (token: text) -> (Result_30) query;
+  getPpeStats: (token: text) -> (Result_29) query;
+  getPtwDashboardStats: (token: text) -> (Result_28) query;
+  getPtwExtension: (token: text, permitNumber: text) -> (Result_27) query;
+  getRiskRecommendations: (token: text) -> (Result_26) query;
+  getRiskScoreHistory: (token: text) -> (Result_25) query;
+  getRiskScoreTrend: (token: text) -> (Result_24) query;
+  getTraining: (token: text, trainingId: text) -> (Result_23) query;
+  issuePpe: (token: text, employeeId: nat, itemId: text, size: text,
+   quantity: nat, condition: PPEConditionIssue) -> (Result_5);
+  linkContractorToPtw: (token: text, contractorId: text, ptwNumber: text) ->
+   (Result_1);
+  listAuditEntries: (token: text, filterModule: opt text, fromTime:
+   opt Timestamp, toTime: opt Timestamp) -> (Result_22) query;
+  listCAPAs: (token: text, filterInc: opt text) -> (Result_21) query;
+  listCapa2s: (token: text) -> (Result_20) query;
+  listContractors: (token: text) -> (Result_19) query;
+  listEmployees: (token: text, filterDept: opt text, filterSite: opt text,
+   filterStatus: opt EmployeeStatus, search: opt text) -> (Result_18) query;
+  listHIRAs: (token: text) -> (Result_17) query;
+  listIncidents: (token: text, filterType: opt IncidentType, filterSeverity:
+   opt Severity, filterStatus: opt IncidentStatus, filterDept: opt text) ->
+   (Result_16) query;
+  listJSAs: (token: text) -> (Result_15) query;
+  listLotos: (token: text) -> (Result_14) query;
+  listObservations: (token: text) -> (Result_13) query;
+  listPTWs: (token: text, filterStatus: opt PTWStatus, filterType:
+   opt PermitType) -> (Result_12) query;
+  listPpeInventory: (token: text) -> (Result_11) query;
+  listPpeIssuances: (token: text, employeeId: opt nat) -> (Result_10) query;
+  listPpeItems: (token: text) -> (Result_9) query;
+  listTrainings: (token: text, filterDept: opt text, filterType:
+   opt TrainingType) -> (Result_8) query;
+  listUsers: (token: text, filterRole: opt Role, filterDept: opt text,
+   filterStatus: opt UserStatus) -> (Result_7) query;
+  login: (employeeId: EmployeeId, password: text) -> (Result_6);
+  logout: (token: text) -> ();
+  markAttendance: (token: text, trainingId: text, empCode: text, attendance:
+   AttendanceStatus) -> (Result_1);
+  markNotifRead: (token: text, notifId: nat) -> (Result_1);
+  recordContractorPerformance: (token: text, contractorId: text, performance:
+   ContractorPerformance) -> (Result_1);
+  recordEnergisation: (token: text, permitId: text, "record":
+   EnergisationRecord) -> (Result_1);
+  recordInduction: (token: text, contractorId: text, empIdNumber: text,
+   passed: bool) -> (Result_5);
+  recordJSABriefing: (token: text, jsaNumber: text, attendeeIds:
+   vec EmployeeId) -> (Result_1);
+  recordPpeInspection: (token: text, itemId: text, condition:
+   PPEInspectionCondition, remarks: text, inspectionDate: text) -> (Result_5);
+  recordToolboxTalk: (token: text, permitNumber: text, attendeeIds:
+   vec EmployeeId) -> (Result_1);
+  rejectPTW: (token: text, permitId: text, remarks: text) -> (Result_1);
+  reportIncident: (token: text, input: CreateIncidentInput) -> (Result_4);
+  resetPassword: (token: text, targetEmployeeId: EmployeeId, newPassword:
+   text) -> (Result_1);
+  setPtwGasTest: (token: text, permitNumber: text, o2: float64, lel: 
+   float64, h2s: float64, co: float64) -> (Result_3);
+  setUserStatus: (token: text, targetEmployeeId: EmployeeId, newStatus:
+   UserStatus) -> (Result_1);
+  submitCapa2ForVerification: (token: text, capaNumber: text) -> (Result_1);
+  submitHIRAForApproval: (token: text, hiraNumber: text) -> (Result_1);
+  submitJSAForApproval: (token: text, jsaNumber: text) -> (Result_1);
+  submitPTW: (token: text, permitId: text, nominatedHodId: nat) -> (Result_1);
+  suspendPTW: (token: text, permitId: text, reason: text) -> (Result_1);
+  unreadNotifCount: (token: text) -> (Result_2) query;
+  updateCapa2Progress: (token: text, capaNumber: text, progressUpdate: 
+   text, evidence: opt text) -> (Result_1);
+  updateContractorStatus: (token: text, contractorId: text, status:
+   ContractorStatus) -> (Result_1);
+  updateIncidentStatus: (token: text, incNum: text, newStatus:
+   IncidentStatus, rootCause: text, correctiveAction: text) -> (Result_1);
+  updateLockStatus: (token: text, lotoNumber: text, lockNumber: text,
+   newStatus: LockEntryStatus) -> (Result_1);
+  updatePpeInventory: (token: text, itemId: text, quantityDelta: int,
+   minLevel: nat) -> (Result_1);
+  verifyCapa2: (token: text, capaNumber: text, approved: bool, remarks:
+   text) -> (Result_1);
+  whoAmI: (token: text) -> (Result) query;
+}
