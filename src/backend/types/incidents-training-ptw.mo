@@ -162,223 +162,95 @@ module {
   };
 
   // ─────────────────────────────────────────────────────
-  // WORK PERMIT (PTW) — Full Rebuild
+  // WORK PERMIT (PTW)
   // ─────────────────────────────────────────────────────
   public type PermitType = {
-    #GeneralWork; #HotWork; #HeightWork; #ConfinedSpace;
-    #ElectricalWork; #Excavation; #Lifting; #Shutdown;
-    #ChemicalHandling; #ColdWork;
-  };
-
-  public type RiskLevel = { #Low; #Medium; #High; #Critical };
-
-  public type InsuranceType = {
-    #ESI; #GroupAccident; #WorkerCompensation; #EmployeeCompensation;
+    #HotWork; #ColdWork; #ConfinedSpace;
+    #WorkAtHeight; #ElectricalIsolation; #Excavation;
   };
 
   public type PTWStatus = {
-    #Draft; #Submitted; #HODReview; #AreaReview; #IsolationReview;
-    #SafetyReview; #FinalApproval; #Approved; #Active; #Suspended;
-    #Rejected; #Closed; #Expired;
+    #Draft;
+    #PendingHOD;
+    #PendingAreaInCharge;
+    #PendingSafetyOfficer;
+    #Active;
+    #Completed;
+    #Closed;
+    #Rejected;
   };
 
-  public type ApprovalSignature = {
-    employeeId     : CT.EmployeeId;
-    name           : Text;
-    designation    : Text;
-    approvalStatus : Text;       // "Pending" | "Approved" | "Rejected"
-    signedAt       : ?CT.Timestamp;
-    ipAddress      : Text;
-    remarks        : Text;
+  public type ApprovalStep = {
+    approverId   : CT.EmployeeId;
+    approverName : Text;
+    role         : CT.Role;
+    var approved : ?Bool;             // null = pending
+    var remarks  : Text;
+    var actionAt : ?CT.Timestamp;
   };
 
-  public type IsolationDetail = {
-    isolationRequired  : Bool;
-    electricalOptions  : [Text]; // multi-select
-    serviceOptions     : [Text]; // multi-select
-    description        : Text;
-    lotoLockNumber     : Text;
-    isolationBy        : CT.EmployeeId;
-    isolationDateTime  : ?CT.Timestamp;
-    verificationStatus : Text;
+  public type PTW = {
+    permitNumber   : Text;            // PTW-YYYY-NNNNN
+    permitType     : PermitType;
+    workDescription : Text;
+    location       : Text;
+    startDateTime  : Text;            // ISO-8601
+    endDateTime    : Text;            // ISO-8601
+    requestedById  : CT.EmployeeId;
+    requestedByName : Text;
+    contractorTeam : Text;
+    riskAssessed   : Bool;
+    ppeRequired    : [Text];
+    var status     : PTWStatus;
+    var hodStep    : ?ApprovalStep;
+    var aicStep    : ?ApprovalStep;
+    var soStep     : ?ApprovalStep;
+    var rejectedAt : ?CT.Timestamp;
+    var rejectedRemarks : Text;
+    var closedAt   : ?CT.Timestamp;
+    createdAt      : CT.Timestamp;
   };
 
-  public type EnergisationRecord = {
-    energisationType  : Text;           // "Electrical" | "ServiceProcess"
-    checklistItems    : [(Text, Bool)];  // item name, checked
-    lotoLockNumber    : Text;
-    approverEmployeeId : CT.EmployeeId;
-    approverName      : Text;
-    approvedAt        : ?CT.Timestamp;
-    signature         : Text;
+  public type ApprovalStepView = {
+    approverId   : CT.EmployeeId;
+    approverName : Text;
+    role         : CT.Role;
+    approved     : ?Bool;
+    remarks      : Text;
+    actionAt     : ?CT.Timestamp;
   };
 
-  public type InsuranceInfo = {
-    insuranceType      : InsuranceType;
-    validFrom          : Text;
-    validTill          : Text;
-    policyNumber       : Text;
-    verificationStatus : Text;    // "Pending" | "Verified" | "Expired"
-    documentUrls       : [Text];  // uploaded doc references
+  public type PTWView = {
+    permitNumber   : Text;
+    permitType     : PermitType;
+    workDescription : Text;
+    location       : Text;
+    startDateTime  : Text;
+    endDateTime    : Text;
+    requestedById  : CT.EmployeeId;
+    requestedByName : Text;
+    contractorTeam : Text;
+    riskAssessed   : Bool;
+    ppeRequired    : [Text];
+    status         : PTWStatus;
+    hodStep        : ?ApprovalStepView;
+    aicStep        : ?ApprovalStepView;
+    soStep         : ?ApprovalStepView;
+    rejectedAt     : ?CT.Timestamp;
+    rejectedRemarks : Text;
+    closedAt       : ?CT.Timestamp;
+    createdAt      : CT.Timestamp;
   };
 
-  public type PermitToWork = {
-    id                 : Text;   // RKTR/PTW/YYYY/MM/0001
-    permitType         : PermitType;
-    validityDate       : Text;
-    timeStart          : Text;
-    timeEnd            : Text;
-    issuingDepartment  : Text;
-    issuedTo           : Text;
-    crossReference     : Text;
-    jobLocation        : Text;
-    jobDescription     : Text;
-    contractorName     : Text;
-    supervisorName     : Text;
-    var status         : PTWStatus;
-    department         : Text;
-    area               : Text;
-    riskLevel          : RiskLevel;
-    // Insurance
-    insurance          : ?InsuranceInfo;
-    // Hazard selection
-    selectedHazards    : [Text];
-    customHazard       : Text;
-    // PPE selection
-    selectedPPE        : [Text];
-    // Isolation
-    isolation          : ?IsolationDetail;
-    // Dynamic checklist
-    checklist          : [(Text, Bool)];
-    // Approval signatures — 8 slots
-    var requestorSignature           : ?ApprovalSignature;
-    var hodSignature                 : ?ApprovalSignature;
-    var areaInChargeSignature        : ?ApprovalSignature;
-    var isolationAuthoritySignature  : ?ApprovalSignature;
-    var safetyOfficerSignature       : ?ApprovalSignature;
-    var finalIssuerSignature         : ?ApprovalSignature;
-    var electricalApproverSignature  : ?ApprovalSignature;
-    var serviceProcessApproverSignature : ?ApprovalSignature;
-    // Energisation
-    var electricalEnergisation       : ?EnergisationRecord;
-    var serviceProcessEnergisation   : ?EnergisationRecord;
-    // Gas test (Confined Space)
-    var o2Percent      : ?Float;
-    var lelPercent     : ?Float;
-    var h2sPpm         : ?Float;
-    var coPpm          : ?Float;
-    // Toolbox talk
-    var toolboxTalkDone      : Bool;
-    var toolboxTalkAttendees : [Text];
-    // Emergency rescue plan (Confined Space)
-    var emergencyRescuePlan        : Bool;
-    var emergencyRescueDescription : Text;
-    // HIRA and JSA links
-    var linkedHiraNumber : ?Text;
-    var linkedJsaNumber  : ?Text;
-    // Meta
-    createdBy  : CT.EmployeeId;
-    createdAt  : CT.Timestamp;
-    var updatedAt : CT.Timestamp;
-    // Nominated next approver employee IDs
-    var nominatedHodEmployeeId             : ?CT.EmployeeId;
-    var nominatedAreaInChargeEmployeeId    : ?CT.EmployeeId;
-    var nominatedIsolationAuthorityEmployeeId : ?CT.EmployeeId;
-    var nominatedSafetyOfficerEmployeeId   : ?CT.EmployeeId;
-    var nominatedFinalIssuerEmployeeId     : ?CT.EmployeeId;
-  };
-
-  // Shared-safe projection of PermitToWork (no var fields)
-  public type PermitToWorkView = {
-    id                 : Text;
-    permitType         : PermitType;
-    validityDate       : Text;
-    timeStart          : Text;
-    timeEnd            : Text;
-    issuingDepartment  : Text;
-    issuedTo           : Text;
-    crossReference     : Text;
-    jobLocation        : Text;
-    jobDescription     : Text;
-    contractorName     : Text;
-    supervisorName     : Text;
-    status             : PTWStatus;
-    department         : Text;
-    area               : Text;
-    riskLevel          : RiskLevel;
-    insurance          : ?InsuranceInfo;
-    selectedHazards    : [Text];
-    customHazard       : Text;
-    selectedPPE        : [Text];
-    isolation          : ?IsolationDetail;
-    checklist          : [(Text, Bool)];
-    requestorSignature           : ?ApprovalSignature;
-    hodSignature                 : ?ApprovalSignature;
-    areaInChargeSignature        : ?ApprovalSignature;
-    isolationAuthoritySignature  : ?ApprovalSignature;
-    safetyOfficerSignature       : ?ApprovalSignature;
-    finalIssuerSignature         : ?ApprovalSignature;
-    electricalApproverSignature  : ?ApprovalSignature;
-    serviceProcessApproverSignature : ?ApprovalSignature;
-    electricalEnergisation       : ?EnergisationRecord;
-    serviceProcessEnergisation   : ?EnergisationRecord;
-    o2Percent          : ?Float;
-    lelPercent         : ?Float;
-    h2sPpm             : ?Float;
-    coPpm              : ?Float;
-    toolboxTalkDone      : Bool;
-    toolboxTalkAttendees : [Text];
-    emergencyRescuePlan        : Bool;
-    emergencyRescueDescription : Text;
-    linkedHiraNumber   : ?Text;
-    linkedJsaNumber    : ?Text;
-    createdBy          : CT.EmployeeId;
-    createdAt          : CT.Timestamp;
-    updatedAt          : CT.Timestamp;
-    nominatedHodEmployeeId             : ?CT.EmployeeId;
-    nominatedAreaInChargeEmployeeId    : ?CT.EmployeeId;
-    nominatedIsolationAuthorityEmployeeId : ?CT.EmployeeId;
-    nominatedSafetyOfficerEmployeeId   : ?CT.EmployeeId;
-    nominatedFinalIssuerEmployeeId     : ?CT.EmployeeId;
-  };
-
-  public type CreatePermitInput = {
-    permitType        : PermitType;
-    validityDate      : Text;
-    timeStart         : Text;
-    timeEnd           : Text;
-    issuingDepartment : Text;
-    issuedTo          : Text;
-    crossReference    : Text;
-    jobLocation       : Text;
-    jobDescription    : Text;
-    contractorName    : Text;
-    supervisorName    : Text;
-    department        : Text;
-    area              : Text;
-    riskLevel         : RiskLevel;
-    insurance         : ?InsuranceInfo;
-    selectedHazards   : [Text];
-    customHazard      : Text;
-    selectedPPE       : [Text];
-    isolation         : ?IsolationDetail;
-    checklist         : [(Text, Bool)];
-    nominatedHodEmployeeId : ?CT.EmployeeId;
-  };
-
-  public type PTWListFilter = {
-    status     : ?PTWStatus;
-    permitType : ?PermitType;
-    department : ?Text;
-    area       : ?Text;
-  };
-
-  public type PTWMasterData = {
-    permitTypes : [Text];
-    hazards     : [Text];
-    ppeList     : [Text];
-    locations   : [Text];
-    departments : [Text];
+  public type CreatePTWInput = {
+    permitType     : PermitType;
+    workDescription : Text;
+    location       : Text;
+    startDateTime  : Text;
+    endDateTime    : Text;
+    contractorTeam : Text;
+    riskAssessed   : Bool;
+    ppeRequired    : [Text];
   };
 
   // ─────────────────────────────────────────────────────

@@ -26,7 +26,6 @@ import {
 } from "../../backend";
 
 type Severity = "Low" | "Medium" | "High" | "Critical";
-import { DEPARTMENTS, LOCATIONS } from "../../constants/locations";
 import { useAuth } from "../../hooks/useAuth";
 import { useBackend } from "../../hooks/useBackend";
 import { formatIncidentType } from "../../pages/IncidentsPage";
@@ -255,24 +254,13 @@ export function IncidentReportDialog({ open, onClose, onCreated }: Props) {
               <Label>
                 Location <span className="text-destructive">*</span>
               </Label>
-              <Select
+              <Input
+                placeholder="e.g. Block C, Pump Room"
                 value={form.location}
-                onValueChange={(v) => set("location", v)}
-              >
-                <SelectTrigger
-                  data-ocid="incidents.location_input"
-                  className={errors.location ? "border-destructive" : ""}
-                >
-                  <SelectValue placeholder="Select Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LOCATIONS.map((l) => (
-                    <SelectItem key={l} value={l}>
-                      {l}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(e) => set("location", e.target.value)}
+                data-ocid="incidents.location_input"
+                className={errors.location ? "border-destructive" : ""}
+              />
               {errors.location && (
                 <p
                   className="text-destructive text-xs"
@@ -286,24 +274,13 @@ export function IncidentReportDialog({ open, onClose, onCreated }: Props) {
               <Label>
                 Department <span className="text-destructive">*</span>
               </Label>
-              <Select
+              <Input
+                placeholder="e.g. Operations"
                 value={form.department}
-                onValueChange={(v) => set("department", v)}
-              >
-                <SelectTrigger
-                  data-ocid="incidents.department_input"
-                  className={errors.department ? "border-destructive" : ""}
-                >
-                  <SelectValue placeholder="Select Department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {DEPARTMENTS.map((d) => (
-                    <SelectItem key={d} value={d}>
-                      {d}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(e) => set("department", e.target.value)}
+                data-ocid="incidents.department_input"
+                className={errors.department ? "border-destructive" : ""}
+              />
               {errors.department && (
                 <p
                   className="text-destructive text-xs"

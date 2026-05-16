@@ -478,7 +478,7 @@ function ContractorDetail({
   });
 
   const linkedPtws = (linkedPtwQuery.data ?? []).filter((p) =>
-    contractor.linkedPtwNumbers.includes(p.id),
+    contractor.linkedPtwNumbers.includes(p.permitNumber),
   );
 
   const updateStatus = async (status: ContractorStatus) => {
@@ -892,19 +892,19 @@ function ContractorDetail({
             <div className="space-y-2">
               {linkedPtws.map((ptw, i) => (
                 <div
-                  key={ptw.id}
+                  key={ptw.permitNumber}
                   data-ocid={`contractor.ptw.item.${i + 1}`}
                   className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3"
                 >
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {ptw.id}
+                      {ptw.permitNumber}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {ptw.permitType} · {ptw.jobLocation}
+                      {ptw.permitType} · {ptw.location}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {ptw.timeStart} → {ptw.timeEnd}
+                      {ptw.startDateTime} → {ptw.endDateTime}
                     </p>
                   </div>
                   <Badge className="text-xs">{ptw.status}</Badge>

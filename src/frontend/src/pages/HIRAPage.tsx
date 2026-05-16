@@ -42,7 +42,6 @@ import {
   HazardType,
   RiskLevel,
 } from "../backend";
-import { DEPARTMENTS, LOCATIONS } from "../constants/locations";
 import { useAuth } from "../hooks/useAuth";
 import { useBackend } from "../hooks/useBackend";
 
@@ -689,21 +688,13 @@ function CreateHIRADialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-foreground">Location *</Label>
-              <Select value={location} onValueChange={setLocation}>
-                <SelectTrigger
-                  className="bg-background border-input"
-                  data-ocid="hira.create.location.input"
-                >
-                  <SelectValue placeholder="Select Location" />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border">
-                  {LOCATIONS.map((l) => (
-                    <SelectItem key={l} value={l}>
-                      {l}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Building A"
+                className="bg-background border-input"
+                data-ocid="hira.create.location.input"
+              />
               {errors.location && (
                 <p
                   className="text-xs text-destructive"
@@ -715,21 +706,13 @@ function CreateHIRADialog({
             </div>
             <div className="space-y-1.5">
               <Label className="text-foreground">Area *</Label>
-              <Select value={area} onValueChange={setArea}>
-                <SelectTrigger
-                  className="bg-background border-input"
-                  data-ocid="hira.create.area.input"
-                >
-                  <SelectValue placeholder="Select Location" />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border">
-                  {LOCATIONS.map((l) => (
-                    <SelectItem key={l} value={l}>
-                      {l}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="e.g. Workshop Zone 3"
+                className="bg-background border-input"
+                data-ocid="hira.create.area.input"
+              />
               {errors.area && (
                 <p
                   className="text-xs text-destructive"
@@ -743,21 +726,13 @@ function CreateHIRADialog({
 
           <div className="space-y-1.5">
             <Label className="text-foreground">Department *</Label>
-            <Select value={department} onValueChange={setDepartment}>
-              <SelectTrigger
-                className="bg-background border-input"
-                data-ocid="hira.create.department.input"
-              >
-                <SelectValue placeholder="Select Department" />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                {DEPARTMENTS.map((d) => (
-                  <SelectItem key={d} value={d}>
-                    {d}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              placeholder="e.g. Maintenance"
+              className="bg-background border-input"
+              data-ocid="hira.create.department.input"
+            />
             {errors.department && (
               <p
                 className="text-xs text-destructive"

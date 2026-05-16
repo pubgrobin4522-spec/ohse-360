@@ -222,143 +222,68 @@ module {
     };
   };
 
-  // ─── PTW number generator ─────────────────────────────────
-  // Format: RKTR/PTW/YYYY/MM/0001 (zero-padded 4-digit sequential counter)
-  public func generatePTWNumber(counter : Nat, yearMonth : Text) : Text {
-    let padded4 = if (counter < 10) "000" # counter.toText()
-                  else if (counter < 100) "00" # counter.toText()
-                  else if (counter < 1000) "0" # counter.toText()
-                  else counter.toText();
-    "RKTR/PTW/" # yearMonth # "/" # padded4;
-  };
-
-  // Returns current year/month as "YYYY/MM" text
-  let NS_PER_MONTH : Int = 2_629_800_000_000_000; // ~30.4375 days
-  public func currentYearMonth() : Text {
-    let now = Time.now();
-    let y = 1970 + now / NS_PER_YEAR;
-    // Approximate month: (days since year start) / 30.4375
-    let startOfYear : Int = (y - 1970) * NS_PER_YEAR;
-    let daysIntoYear : Int = (now - startOfYear) / 86_400_000_000_000;
-    let mo : Int = daysIntoYear / 30 + 1;
-    let moClamp : Nat = if (mo < 1) 1 else if (mo > 12) 12 else mo.toNat();
-    let ym = y.toNat().toText() # "/" # padded(moClamp, 2);
-    ym;
-  };
-
-  // ─── PermitToWork factory ─────────────────────────────────
-  public func newPermitToWork(
-    id    : Text,
-    input : T.CreatePermitInput,
-    createdBy : CT.EmployeeId,
-  ) : T.PermitToWork {
-    let now = Time.now();
+  // ─── PTW factory ──────────────────────────────────────────
+  public func newPTW(
+    number  : Text,
+    input   : T.CreatePTWInput,
+    requestedById  : CT.EmployeeId,
+    requestedByName : Text,
+  ) : T.PTW {
     {
-      id;
-      permitType        = input.permitType;
-      validityDate      = input.validityDate;
-      timeStart         = input.timeStart;
-      timeEnd           = input.timeEnd;
-      issuingDepartment = input.issuingDepartment;
-      issuedTo          = input.issuedTo;
-      crossReference    = input.crossReference;
-      jobLocation       = input.jobLocation;
-      jobDescription    = input.jobDescription;
-      contractorName    = input.contractorName;
-      supervisorName    = input.supervisorName;
-      var status        = #Draft;
-      department        = input.department;
-      area              = input.area;
-      riskLevel         = input.riskLevel;
-      insurance         = input.insurance;
-      selectedHazards   = input.selectedHazards;
-      customHazard      = input.customHazard;
-      selectedPPE       = input.selectedPPE;
-      isolation         = input.isolation;
-      checklist         = input.checklist;
-      var requestorSignature           = null;
-      var hodSignature                 = null;
-      var areaInChargeSignature        = null;
-      var isolationAuthoritySignature  = null;
-      var safetyOfficerSignature       = null;
-      var finalIssuerSignature         = null;
-      var electricalApproverSignature  = null;
-      var serviceProcessApproverSignature = null;
-      var electricalEnergisation       = null;
-      var serviceProcessEnergisation   = null;
-      var o2Percent      = null;
-      var lelPercent     = null;
-      var h2sPpm         = null;
-      var coPpm          = null;
-      var toolboxTalkDone      = false;
-      var toolboxTalkAttendees = [];
-      var emergencyRescuePlan        = false;
-      var emergencyRescueDescription = "";
-      var linkedHiraNumber = null;
-      var linkedJsaNumber  = null;
-      createdBy;
-      createdAt  = now;
-      var updatedAt = now;
-      var nominatedHodEmployeeId             = input.nominatedHodEmployeeId;
-      var nominatedAreaInChargeEmployeeId    = null;
-      var nominatedIsolationAuthorityEmployeeId = null;
-      var nominatedSafetyOfficerEmployeeId   = null;
-      var nominatedFinalIssuerEmployeeId     = null;
+      permitNumber    = number;
+      permitType      = input.permitType;
+      workDescription = input.workDescription;
+      location        = input.location;
+      startDateTime   = input.startDateTime;
+      endDateTime     = input.endDateTime;
+      requestedById;
+      requestedByName;
+      contractorTeam  = input.contractorTeam;
+      riskAssessed    = input.riskAssessed;
+      ppeRequired     = input.ppeRequired;
+      var status      = #Draft;
+      var hodStep     = null;
+      var aicStep     = null;
+      var soStep      = null;
+      var rejectedAt  = null;
+      var rejectedRemarks = "";
+      var closedAt    = null;
+      createdAt       = Time.now();
     };
   };
 
-  public func toPermitView(p : T.PermitToWork) : T.PermitToWorkView {
+  public func toStepView(s : T.ApprovalStep) : T.ApprovalStepView {
     {
-      id                = p.id;
-      permitType        = p.permitType;
-      validityDate      = p.validityDate;
-      timeStart         = p.timeStart;
-      timeEnd           = p.timeEnd;
-      issuingDepartment = p.issuingDepartment;
-      issuedTo          = p.issuedTo;
-      crossReference    = p.crossReference;
-      jobLocation       = p.jobLocation;
-      jobDescription    = p.jobDescription;
-      contractorName    = p.contractorName;
-      supervisorName    = p.supervisorName;
-      status            = p.status;
-      department        = p.department;
-      area              = p.area;
-      riskLevel         = p.riskLevel;
-      insurance         = p.insurance;
-      selectedHazards   = p.selectedHazards;
-      customHazard      = p.customHazard;
-      selectedPPE       = p.selectedPPE;
-      isolation         = p.isolation;
-      checklist         = p.checklist;
-      requestorSignature           = p.requestorSignature;
-      hodSignature                 = p.hodSignature;
-      areaInChargeSignature        = p.areaInChargeSignature;
-      isolationAuthoritySignature  = p.isolationAuthoritySignature;
-      safetyOfficerSignature       = p.safetyOfficerSignature;
-      finalIssuerSignature         = p.finalIssuerSignature;
-      electricalApproverSignature  = p.electricalApproverSignature;
-      serviceProcessApproverSignature = p.serviceProcessApproverSignature;
-      electricalEnergisation       = p.electricalEnergisation;
-      serviceProcessEnergisation   = p.serviceProcessEnergisation;
-      o2Percent         = p.o2Percent;
-      lelPercent        = p.lelPercent;
-      h2sPpm            = p.h2sPpm;
-      coPpm             = p.coPpm;
-      toolboxTalkDone      = p.toolboxTalkDone;
-      toolboxTalkAttendees = p.toolboxTalkAttendees;
-      emergencyRescuePlan        = p.emergencyRescuePlan;
-      emergencyRescueDescription = p.emergencyRescueDescription;
-      linkedHiraNumber  = p.linkedHiraNumber;
-      linkedJsaNumber   = p.linkedJsaNumber;
-      createdBy         = p.createdBy;
-      createdAt         = p.createdAt;
-      updatedAt         = p.updatedAt;
-      nominatedHodEmployeeId             = p.nominatedHodEmployeeId;
-      nominatedAreaInChargeEmployeeId    = p.nominatedAreaInChargeEmployeeId;
-      nominatedIsolationAuthorityEmployeeId = p.nominatedIsolationAuthorityEmployeeId;
-      nominatedSafetyOfficerEmployeeId   = p.nominatedSafetyOfficerEmployeeId;
-      nominatedFinalIssuerEmployeeId     = p.nominatedFinalIssuerEmployeeId;
+      approverId   = s.approverId;
+      approverName = s.approverName;
+      role         = s.role;
+      approved     = s.approved;
+      remarks      = s.remarks;
+      actionAt     = s.actionAt;
+    };
+  };
+
+  public func toPTWView(p : T.PTW) : T.PTWView {
+    {
+      permitNumber    = p.permitNumber;
+      permitType      = p.permitType;
+      workDescription = p.workDescription;
+      location        = p.location;
+      startDateTime   = p.startDateTime;
+      endDateTime     = p.endDateTime;
+      requestedById   = p.requestedById;
+      requestedByName = p.requestedByName;
+      contractorTeam  = p.contractorTeam;
+      riskAssessed    = p.riskAssessed;
+      ppeRequired     = p.ppeRequired;
+      status          = p.status;
+      hodStep         = switch (p.hodStep) { case (null) null; case (?s) ?toStepView(s) };
+      aicStep         = switch (p.aicStep) { case (null) null; case (?s) ?toStepView(s) };
+      soStep          = switch (p.soStep)  { case (null) null; case (?s) ?toStepView(s) };
+      rejectedAt      = p.rejectedAt;
+      rejectedRemarks = p.rejectedRemarks;
+      closedAt        = p.closedAt;
+      createdAt       = p.createdAt;
     };
   };
 

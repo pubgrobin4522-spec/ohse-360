@@ -32,7 +32,6 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { UserStatus } from "../backend";
 import type { CreateUserInput, UserView } from "../backend";
-import { DEPARTMENTS } from "../constants/locations";
 import { useAuth } from "../hooks/useAuth";
 import { useBackend } from "../hooks/useBackend";
 import { ROLE_LABELS, Role, validatePassword } from "../types";
@@ -638,24 +637,15 @@ export default function UsersPage() {
                 <Label htmlFor="cu-dept" className="text-foreground">
                   Department
                 </Label>
-                <select
+                <Input
                   id="cu-dept"
+                  placeholder="e.g. Operations"
                   value={createForm.department}
                   onChange={(e) =>
                     setCreateForm((f) => ({ ...f, department: e.target.value }))
                   }
-                  data-ocid="users.create.department.select"
-                  className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                >
-                  <option value="" disabled>
-                    Select Department
-                  </option>
-                  {DEPARTMENTS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
+                  data-ocid="users.create.department.input"
+                />
                 {createErrors.department && (
                   <p
                     className="text-xs text-destructive"
